@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">DailyBill</string>
+
+    <string name="main_total_today">今日累计</string>
+    <string name="main_total_month">本月累计</string>
+    <string name="main_account">金额</string>
+    <string name="main_desc">描述</string>
+    <string name="main_label">标签</string>
+    <string name="main_label_tip">从下方选择标签</string>
+    <string name="main_label_tip2">我的标签</string>
+    <string name="main_today_list">今日支出</string>
+    <string name="main_reset">重置</string>
+    <string name="main_add">记一笔</string>
+
+</resources>

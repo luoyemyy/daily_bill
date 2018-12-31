@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF03A9F4</color>
+    <color name="colorPrimaryDark">#FF03A9F4</color>
+    <color name="colorAccent">#FF81D4FA</color>
+    <color name="background">#FFFFFFFF</color>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+
+    <color name="text_title">#CC000000</color>  <!-- 87% -->
+    <color name="text_content">#99000000</color> <!-- 60% -->
+    <color name="text_hint">#20000000</color> <!-- 12% -->
+    <color name="text_disable">#61000000</color> <!-- 38% -->
+    <color name="text_primary">#FF03A9F4</color>
+
+    <color name="border">#65000000</color>
+
+    <color name="ripple_color">#20000000</color>
+
+    <color name="disable_primary">#6103A9F4</color>
+    <color name="translucence">#80000000</color>
+</resources>
