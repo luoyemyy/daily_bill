@@ -116,6 +116,7 @@
                             <com.google.android.material.textfield.TextInputEditText
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:imeOptions="actionNone"
                                 android:inputType="numberDecimal"
                                 android:lines="1"
                                 android:textSize="16sp" />
@@ -147,6 +148,7 @@
                             android:background="@drawable/border_radius_gray">
 
                             <com.google.android.material.chip.ChipGroup
+                                android:id="@+id/layoutChips"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
@@ -155,29 +157,22 @@
                                 android:layout_marginBottom="16dp"
                                 app:chipSpacing="8dp">
 
-                                <com.google.android.material.chip.Chip
-                                    style="@style/Widget.MaterialComponents.Chip.Filter"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="午餐"
-                                    android:textColor="@color/text_title"
-                                    app:checkedIcon="@drawable/ic_check"
-                                    app:chipBackgroundColor="@color/white"
-                                    app:chipStrokeColor="@color/border"
-                                    app:chipStrokeWidth="1dp"
-                                    app:rippleColor="@color/colorAccent" />
+                                <include layout="@layout/layout_chip_label" />
 
-                                <com.google.android.material.chip.Chip
-                                    style="@style/Widget.MaterialComponents.Chip.Filter"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="午餐"
-                                    android:textColor="@color/text_title"
-                                    app:checkedIcon="@drawable/ic_check"
-                                    app:chipBackgroundColor="@color/white"
-                                    app:chipStrokeColor="@color/border"
-                                    app:chipStrokeWidth="1dp"
-                                    app:rippleColor="@color/colorAccent" />
+                                <include layout="@layout/layout_chip_label" />
+
+                                <include layout="@layout/layout_chip_label" />
+
+                                <include layout="@layout/layout_chip_label" />
+
+                                <include layout="@layout/layout_chip_label" />
+
+                                <include layout="@layout/layout_chip_label" />
+
+                                <include layout="@layout/layout_chip_label" />
+
+                                <include layout="@layout/layout_chip_label" />
+
                             </com.google.android.material.chip.ChipGroup>
 
                         </FrameLayout>
