@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -8,6 +8,8 @@
 
     <androidx.drawerlayout.widget.DrawerLayout
         android:layout_width="match_parent"
+        tools:openDrawer="start"
+        android:fitsSystemWindows="true"
         android:layout_height="match_parent">
 
         <FrameLayout
@@ -27,7 +29,9 @@
             android:id="@+id/navigationView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            app:insetForeground="@android:color/transparent"
             android:layout_gravity="start"
+            android:fitsSystemWindows="true"
             app:headerLayout="@layout/layout_main_nav"
             app:menu="@menu/main_nav"/>
 

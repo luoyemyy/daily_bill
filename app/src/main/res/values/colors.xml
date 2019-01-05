@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#EDEDED</color>
-    <color name="colorPrimaryDark">#EDEDED</color>
+    <color name="colorPrimary">#1c1c1c</color>
+    <color name="colorPrimaryDark">#1c1c1c</color>
     <color name="colorAccent">#08C161</color>
     <color name="background">#EDEDED</color>
 
@@ -13,6 +13,8 @@
     <color name="text_content">#99000000</color>    <!-- 60% -->
     <color name="text_hint">#20000000</color>       <!-- 12% -->
     <color name="text_disable">#61000000</color>    <!-- 38% -->
+
+    <color name="icon_tint">#80000000</color>
 
     <color name="border">#65000000</color>
     <color name="ripple_color">#08C161</color>

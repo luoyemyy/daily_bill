@@ -1,16 +1,24 @@
 <resources>
     <string name="app_name">每日支出</string>
-
+    
     <string name="know">知道了</string>
     <string name="account">金额</string>
     <string name="desc">描述</string>
     <string name="label">标签</string>
-
     <string name="label1">早餐</string>
     <string name="label2">午餐</string>
     <string name="label3">晚餐</string>
     <string name="label4">网络购物</string>
     <string name="label5">超市</string>
+
+    <string name="nav_tip">记录每一笔支出</string>
+    <string name="nav_bill">我的账单</string>
+    <string name="nav_label">我的标签</string>
+    <string name="nav_favor">常用支出</string>
+    <string name="nav_export">数据导出</string>
+    <string name="nav_backup">数据备份</string>
+    <string name="nav_user">切换用户</string>
+    <string name="nav_about">关于</string>
 
     <string name="main_total_today">今日累计</string>
     <string name="main_total_month">本月累计</string>
