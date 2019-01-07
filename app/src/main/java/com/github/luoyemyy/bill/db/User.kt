@@ -19,7 +19,7 @@ interface UserDao {
     fun add(user: User): Long
 
     @Update
-    fun update(users: List<User>): Long
+    fun update(users: List<User>): Int
 
     @Query("select * from user")
     fun getAll(): LiveData<List<User>>

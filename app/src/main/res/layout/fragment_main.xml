@@ -18,8 +18,10 @@
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
+                app:navigationIcon="@drawable/animator_back_menu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:contentInsetStartWithNavigation="0dp"
                 app:popupTheme="@style/AppTheme.PopupOverlay"
                 app:title="@string/app_name"/>
 

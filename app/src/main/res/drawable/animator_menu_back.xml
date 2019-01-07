@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+                 xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:height="24dp"
+            android:width="24dp"
+            android:viewportHeight="24"
+            android:viewportWidth="24">
+            <group
+                android:name="sr"
+                android:pivotX="10"
+                android:pivotY="6"
+                android:rotation="0">
+                <path
+                    android:name="s"
+                    android:fillColor="#FFFFFF"
+                    android:pathData="M3,8h18v-2h-18v2z"/>
+            </group>
+
+            <path
+                android:name="c"
+                android:fillColor="#FFFFFF"
+                android:pathData="M3,13h18v-2h-18v2z"/>
+
+            <group
+                android:name="er"
+                android:pivotX="10"
+                android:pivotY="18"
+                android:rotation="0">
+                <path
+                    android:name="e"
+                    android:fillColor="#FFFFFF"
+                    android:pathData="M3,18h18v-2h-18v2z"/>
+            </group>
+
+        </vector>
+    </aapt:attr>
+
+    <target android:name="sr">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="400"
+                android:propertyName="rotation"
+                android:valueFrom="0"
+                android:valueTo="-45" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="er">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="400"
+                android:propertyName="rotation"
+                android:valueFrom="0"
+                android:valueTo="45" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="s">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="400"
+                    android:propertyName="pathData"
+                    android:valueFrom="M3,8h18v-2h-18v2z"
+                    android:valueTo="M1.5,8h11.5v-2h-11.5v2z"
+                    android:valueType="pathType"/>
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="c">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="400"
+                    android:propertyName="pathData"
+                    android:valueFrom="M3,13h18v-2h-18v2z"
+                    android:valueTo="M5,13h15v-2h-15v2z"
+                    android:valueType="pathType"/>
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="e">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="400"
+                    android:propertyName="pathData"
+                    android:valueFrom="M3,18h18v-2h-18v2z"
+                    android:valueTo="M1.5,18h11.5v-2h-11.5v2z"
+                    android:valueType="pathType"/>
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>
+

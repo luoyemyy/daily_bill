@@ -7,5 +7,9 @@
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.github.luoyemyy.bill.activity.main.MainFragment"
-        android:label="MainFragment"/>
+        android:label="MainFragment">
+        <action android:id="@+id/action_mainFragment_to_addUserFragment" app:destination="@id/addUserFragment"/>
+    </fragment>
+    <fragment android:id="@+id/addUserFragment" android:name="com.github.luoyemyy.bill.activity.user.AddUserFragment"
+              android:label="AddUserFragment"/>
 </navigation>

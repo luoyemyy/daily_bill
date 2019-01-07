@@ -20,6 +20,9 @@
     <string name="nav_user">切换用户</string>
     <string name="nav_about">关于</string>
 
+    <string name="launcher_hint">请输入一个昵称</string>
+    <string name="launcher_start">开始</string>
+
     <string name="main_total_today">今日累计</string>
     <string name="main_total_month">本月累计</string>
     <string name="main_label_tip">从下方选择标签</string>
