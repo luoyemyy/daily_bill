@@ -12,34 +12,33 @@ import androidx.appcompat.app.AppCompatActivity
 abstract class BaseActivity : AppCompatActivity() {
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        val focusView = currentFocus as? EditText
-        val x = ev?.rawX?.toInt() ?: 0
-        val y = ev?.rawY?.toInt() ?: 0
-        if (x >= 0 && y >= 0 && !isTouchEditText(x, y) && focusView != null && !pointInView(x, y, focusView)) {
+        val x = ev?.rawX?.toInt() ?: -1
+        val y = ev?.rawY?.toInt() ?: -1
+        if (x >= 0 && y >= 0 && targetNotEditText(x, y)) {
             hideKeyboard()
-            focusView.clearFocus()
+            (currentFocus as? EditText)?.clearFocus()
         }
         return super.dispatchTouchEvent(ev)
     }
 
-    private fun isTouchEditText(x: Int, y: Int): Boolean {
-        val root = window.peekDecorView() as? ViewGroup ?: return false
-        return isTouchEditText(x, y, root)
+    private fun targetNotEditText(x: Int, y: Int): Boolean {
+        val root = window.peekDecorView() as? ViewGroup ?: return true
+        return targetNotEditText(x, y, root)
     }
 
-    private fun isTouchEditText(x: Int, y: Int, viewGroup: ViewGroup): Boolean {
+    private fun targetNotEditText(x: Int, y: Int, viewGroup: ViewGroup): Boolean {
         val count = viewGroup.childCount
         (0 until count).forEach {
             val view = viewGroup.getChildAt(it)
             if (pointInView(x, y, view)) {
                 return when (view) {
-                    is EditText -> true
-                    is ViewGroup -> isTouchEditText(x, y, view)
-                    else -> false
+                    is EditText -> false
+                    is ViewGroup -> targetNotEditText(x, y, view)
+                    else -> true
                 }
             }
         }
-        return false
+        return true
     }
 
     private fun pointInView(x: Int, y: Int, view: View): Boolean {
