@@ -10,8 +10,6 @@
         android:text="@string/label1"
         android:textColor="@color/text_title"
         app:textStartPadding="5dp"
-        app:rippleColor="@color/colorAccent"
-        app:chipIcon="@drawable/ic_check"
         app:chipBackgroundColor="@color/white"
         app:chipStrokeColor="@color/border"
         app:chipStrokeWidth="1dp"

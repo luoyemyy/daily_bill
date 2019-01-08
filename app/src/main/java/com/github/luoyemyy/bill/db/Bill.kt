@@ -7,6 +7,7 @@ data class Bill(
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         var money: Double = 0.0,
         var description: String? = null,
+        var detail: String? = null,
         var date: Long = 0
 )
 

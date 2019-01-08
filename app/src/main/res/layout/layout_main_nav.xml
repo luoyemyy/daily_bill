@@ -18,34 +18,15 @@
             android:id="@+id/txtName"
             app:layout_constraintLeft_toLeftOf="parent"
             android:layout_width="wrap_content"
-            app:layout_constraintRight_toLeftOf="@id/imgEdit"
             android:layout_height="wrap_content"
-            app:layout_constraintHorizontal_bias="0"
             app:layout_constrainedWidth="true"
+            android:gravity="center_vertical"
+            android:drawableEnd="@drawable/ic_edit"
             android:text="@string/app_name"
+            android:drawablePadding="8dp"
             android:textSize="32sp"
             android:textColor="@color/white"/>
 
-        <ImageView
-            android:id="@+id/imgEdit"
-            android:contentDescription="@null"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintRight_toRightOf="parent"
-            android:padding="8dp"
-            android:background="@drawable/selector_item"
-            android:src="@drawable/ic_edit"
-            android:tint="@color/white"/>
-
-        <TextView
-            android:id="@+id/txtIntro"
-            android:layout_width="wrap_content"
-            android:text="@string/nav_tip"
-            android:layout_marginTop="16dp"
-            android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/txtName"
-            android:textColor="@color/white"
-            android:layout_height="wrap_content"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
