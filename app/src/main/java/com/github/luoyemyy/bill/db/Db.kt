@@ -4,14 +4,11 @@ import android.content.Context
 import androidx.room.*
 import java.util.*
 
-@Database(entities = [User::class, Label::class, Bill::class, BillLabel::class], version = 1)
+@Database(entities = [Bill::class, Favor::class, Label::class, LabelRelation::class, User::class], version = 1)
 @TypeConverters(DateConverters::class)
 abstract class Db : RoomDatabase() {
 
-    abstract fun getUserDao(): UserDao
-    abstract fun getLabelDao(): LabelDao
-    abstract fun getBillDao(): BillDao
-    abstract fun getBillLabelDao(): BillLabelDao
+    abstract fun getDao(): Dao
 
     companion object {
 
@@ -29,10 +26,7 @@ abstract class Db : RoomDatabase() {
     }
 }
 
-fun getLabelDao(appContext: Context): LabelDao = Db.getInstance(appContext).getLabelDao()
-fun getUserDao(appContext: Context): UserDao = Db.getInstance(appContext).getUserDao()
-fun getBillDao(appContext: Context): BillDao = Db.getInstance(appContext).getBillDao()
-fun getBillLabelDao(appContext: Context): BillLabelDao = Db.getInstance(appContext).getBillLabelDao()
+fun getDao(context: Context): Dao = Db.getInstance(context.applicationContext).getDao()
 
 class DateConverters {
     @TypeConverter

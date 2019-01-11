@@ -15,13 +15,9 @@
     <string name="nav_bill">我的账单</string>
     <string name="nav_label">我的标签</string>
     <string name="nav_favor">常用支出</string>
-    <string name="nav_export">数据导出</string>
-    <string name="nav_backup">数据备份</string>
-    <string name="nav_user">切换用户</string>
+    <string name="nav_data">数据迁移</string>
+    <string name="nav_user">用户管理</string>
     <string name="nav_about">关于</string>
-
-    <string name="launcher_hint">请输入一个昵称</string>
-    <string name="launcher_start">开始</string>
 
     <string name="main_total_today">今日累计</string>
     <string name="main_total_month">本月累计</string>
@@ -31,10 +27,11 @@
     <string name="main_reset">重置</string>
     <string name="main_add">记一笔</string>
     <string name="main_shortcut_tip">点击快捷添加支出记录，长按修改金额。</string>
-    <string name="title_activity_main2">MainActivity2</string>
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
+
+    <string name="user_add">新增用户</string>
+    <string name="user_add_hint">请输入一个昵称</string>
+    <string name="user_add_start">开始</string>
+    <string name="user_change">选择用户</string>
 
 
 </resources>

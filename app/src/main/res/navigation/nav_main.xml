@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main_nav"
+    android:id="@+id/nav_main"
     app:startDestination="@id/mainFragment">
 
     <fragment
@@ -13,10 +13,6 @@
         android:name="com.github.luoyemyy.bill.activity.user.AddUserFragment"
         android:label="@string/nav_user" />
     <fragment
-        android:id="@+id/export"
-        android:name="com.github.luoyemyy.bill.activity.export.ExportFragment"
-        android:label="@string/nav_export" />
-    <fragment
         android:id="@+id/bill"
         android:name="com.github.luoyemyy.bill.activity.bill.BillFragment"
         android:label="@string/nav_bill" />
@@ -24,10 +20,6 @@
         android:id="@+id/label"
         android:name="com.github.luoyemyy.bill.activity.label.LabelFragment"
         android:label="@string/nav_label" />
-    <fragment
-        android:id="@+id/backup"
-        android:name="com.github.luoyemyy.bill.activity.backup.BackupFragment"
-        android:label="@string/nav_backup" />
     <fragment
         android:id="@+id/about"
         android:name="com.github.luoyemyy.bill.activity.about.AboutFragment"
@@ -40,4 +32,8 @@
         android:id="@+id/user"
         android:name="com.github.luoyemyy.bill.activity.user.ChangeUserFragment"
         android:label="@string/nav_user" />
+    <fragment
+        android:id="@+id/data"
+        android:name="com.github.luoyemyy.bill.activity.data.DataFragment"
+        android:label="@string/nav_data" />
 </navigation>

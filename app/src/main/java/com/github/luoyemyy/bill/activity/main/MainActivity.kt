@@ -1,6 +1,7 @@
 package com.github.luoyemyy.bill.activity.main
 
 import android.os.Bundle
+import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -10,7 +11,7 @@ import com.github.luoyemyy.bill.databinding.ActivityMainBinding
 
 class MainActivity : BaseActivity() {
 
-    lateinit var mBinding: ActivityMainBinding
+    private lateinit var mBinding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,5 +20,11 @@ class MainActivity : BaseActivity() {
         mBinding.navigationView.setupWithNavController(findNavController(R.id.navFragment))
     }
 
-    override fun onSupportNavigateUp() = findNavController(R.id.navFragment).navigateUp()
+    override fun onBackPressed() {
+        if (mBinding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mBinding.drawerLayout.closeDrawers()
+        } else {
+            super.onBackPressed()
+        }
+    }
 }
