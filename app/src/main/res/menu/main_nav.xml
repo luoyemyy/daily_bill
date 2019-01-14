@@ -13,9 +13,18 @@
         android:id="@+id/data"
         android:title="@string/nav_data" />
     <item
-        android:id="@+id/user"
-        android:title="@string/nav_user" />
-    <item
         android:id="@+id/about"
         android:title="@string/nav_about" />
+
+    <item android:title="@string/nav_group_user">
+        <menu>
+            <item
+                android:id="@+id/userChange"
+                android:title="@string/nav_user_change" />
+            <item
+                android:id="@+id/userAdd"
+                android:title="@string/nav_user_add" />
+        </menu>
+    </item>
+
 </menu>

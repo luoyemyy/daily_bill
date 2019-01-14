@@ -18,6 +18,9 @@ interface Dao {
     @Update
     fun updateUser(user: User): Int
 
+    @Query("select * from user where id = :id")
+    fun getUser(id: Long): User?
+
     @Query("select * from user")
     fun getAllUser(): List<User>
 
@@ -37,10 +40,23 @@ interface Dao {
     @Query("select id from bill where rowId = :rowId limit 1")
     fun getBillIdByRowId(rowId: Long): Long
 
-    @Query("select * from bill where date >= :start and date < :end")
-    fun getBillByDate(start: Long, end: Long): List<Bill>
+    @Query("select * from bill where userId = :userId and  date >= :start and date < :end")
+    fun getBillByDate(userId: Long, start: Long, end: Long): List<Bill>
 
-    @Query("select sum(money) from bill where date >= :start and date < :end")
-    fun sumMoneyByDate(start: Long, end: Long): Double
+    @Query("select sum(money) from bill where userId = :userId and date >= :start and date < :end")
+    fun sumMoneyByDate(userId: Long, start: Long, end: Long): Double
 
+    /********************************************************
+     ******************** label *****************************
+     ********************************************************
+     */
+    @Query("select * from label where userId = :userId and show = 1 order by sort asc")
+    fun getShowLabel(userId: Long): List<Label>
+
+    /********************************************************
+     ******************** favor *****************************
+     ********************************************************
+     */
+    @Query("select * from favor where userId = :userId order by sort asc")
+    fun getFavor(userId: Long): List<Favor>
 }

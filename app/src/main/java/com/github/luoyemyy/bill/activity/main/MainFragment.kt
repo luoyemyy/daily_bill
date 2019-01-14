@@ -17,9 +17,12 @@ import com.github.luoyemyy.bill.activity.login.LoginActivity
 import com.github.luoyemyy.bill.databinding.*
 import com.github.luoyemyy.bill.db.getDao
 import com.github.luoyemyy.bill.util.UserInfo
+import com.github.luoyemyy.ext.clearTime
 import com.github.luoyemyy.ext.dp2px
+import com.github.luoyemyy.ext.toJsonString
 import com.github.luoyemyy.mvp.getRecyclerPresenter
 import com.github.luoyemyy.mvp.recycler.*
+import java.util.*
 
 class MainFragment : BaseFragment() {
 
@@ -162,12 +165,37 @@ class MainFragment : BaseFragment() {
 
         override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<Any>? {
 
-            return listOf(
-                    Count("100", "1000"),
-                    Add(chips = "['早餐','午餐','晚餐','水']"),
-                    FavorHeader(app.getString(R.string.main_shortcut_tip)),
-                    Favor(detail = "12-早餐"))
+            val userId = UserInfo.getUserId(app)
+            val startTime = getTime(0, 0)
+            val endTimeToday = getTime(1, 0)
+            val endTImeMonth = getTime(0, 1)
+            val countToday = dao.sumMoneyByDate(userId, startTime, endTimeToday).toString()
+            val countMonth = dao.sumMoneyByDate(userId, startTime, endTImeMonth).toString()
+            val count = Count(countToday, countMonth)
+            val add = dao.getShowLabel(userId).let { Add(it, it.toJsonString()) }
+            val favors = dao.getFavor(userId).map { Favor(it.id, it.summary) }
+
+            return mutableListOf<Any>().apply {
+                add(count)
+                add(add)
+                add(FavorHeader(app.getString(R.string.main_shortcut_tip)))
+                if (favors.isNotEmpty()) {
+                    addAll(favors)
+                }
+            }
         }
+
+        private fun getTime(addDay: Int, addMonth: Int): Long {
+            val calender = Date().clearTime() ?: return 0L
+            if (addDay > 0) {
+                calender.add(Calendar.DATE, addDay)
+            }
+            if (addMonth > 0) {
+                calender.add(Calendar.MONTH, addMonth)
+            }
+            return calender.timeInMillis
+        }
+
     }
 
     inner class Decoration(context: Context) : RecyclerView.ItemDecoration() {

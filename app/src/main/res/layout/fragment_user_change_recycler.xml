@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="entity"
+            type="com.github.luoyemyy.bill.db.User" />
+    </data>
+
+    <TextView
+        user_selected="@{entity.isDefault()}"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@drawable/ripple_item"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@{entity.nickname}"
+        android:textColor="@color/text_content"
+        android:textSize="15sp"
+        tools:drawableEnd="@drawable/ic_ok"
+        tools:text="明天会更好" />
+</layout>

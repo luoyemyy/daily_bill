@@ -9,9 +9,9 @@
         android:name="com.github.luoyemyy.bill.activity.main.MainFragment"
         android:label="@string/app_name" />
     <fragment
-        android:id="@+id/addUser"
-        android:name="com.github.luoyemyy.bill.activity.user.AddUserFragment"
-        android:label="@string/nav_user" />
+        android:id="@+id/userAdd"
+        android:name="com.github.luoyemyy.bill.activity.user.UserAddFragment"
+        android:label="@string/nav_user_add" />
     <fragment
         android:id="@+id/bill"
         android:name="com.github.luoyemyy.bill.activity.bill.BillFragment"
@@ -29,11 +29,15 @@
         android:name="com.github.luoyemyy.bill.activity.favor.FavorFragment"
         android:label="@string/nav_favor" />
     <fragment
-        android:id="@+id/user"
-        android:name="com.github.luoyemyy.bill.activity.user.ChangeUserFragment"
-        android:label="@string/nav_user" />
+        android:id="@+id/userChange"
+        android:name="com.github.luoyemyy.bill.activity.user.UserChangeFragment"
+        android:label="@string/nav_user_change" />
     <fragment
         android:id="@+id/data"
         android:name="com.github.luoyemyy.bill.activity.data.DataFragment"
         android:label="@string/nav_data" />
+    <fragment
+        android:id="@+id/userEdit"
+        android:name="com.github.luoyemyy.bill.activity.user.UserEditFragment"
+        android:label="@string/user_edit" />
 </navigation>

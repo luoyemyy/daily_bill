@@ -10,4 +10,4 @@ data class Add(var labels: List<Label>? = null, var chips: String? = null) : Mai
 
 data class FavorHeader(var tip: String? = null) : MainData(3)
 
-data class Favor(var billId: Long = 0, var detail: String? = null) : MainData(4)
+data class Favor(var favorId: Long = 0, var detail: String? = null) : MainData(4)
