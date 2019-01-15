@@ -1,35 +1,32 @@
-package com.github.luoyemyy.bill.activity.user
+package com.github.luoyemyy.bill.activity.label
 
 import android.app.Application
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import com.github.luoyemyy.bill.databinding.FragmentUserEditBinding
-import com.github.luoyemyy.bill.db.getUserDao
+import com.github.luoyemyy.bill.activity.base.BaseFragment
+import com.github.luoyemyy.bill.databinding.FragmentLabelAddBinding
+import com.github.luoyemyy.bill.db.Label
+import com.github.luoyemyy.bill.db.getLabelDao
 import com.github.luoyemyy.bill.util.BusEvent
 import com.github.luoyemyy.bill.util.TextChangeAdapter
 import com.github.luoyemyy.bill.util.UserInfo
 import com.github.luoyemyy.bill.util.setKeyAction
 import com.github.luoyemyy.bus.Bus
-import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.mvp.AbstractPresenter
 import com.github.luoyemyy.mvp.getPresenter
+import com.github.luoyemyy.mvp.result
+import com.github.luoyemyy.mvp.single
 
-class UserEditFragment : Fragment() {
-
-    private lateinit var mBinding: FragmentUserEditBinding
+class LabelAddFragment : BaseFragment() {
+    private lateinit var mBinding: FragmentLabelAddBinding
     private lateinit var mPresenter: Presenter
 
-    companion object {
-        fun newInstance() = UserEditFragment()
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return FragmentUserEditBinding.inflate(inflater, container, false).apply { mBinding = this }.root
+        return FragmentLabelAddBinding.inflate(inflater, container, false).apply { mBinding = this }.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -49,31 +46,20 @@ class UserEditFragment : Fragment() {
             }
             btnAdd.setOnClickListener {
                 val name = layoutName.editText?.text?.toString() ?: return@setOnClickListener
-                mPresenter.edit(name)
+                mPresenter.add(name)
             }
         }
-        mBinding.name = UserInfo.getUsername(requireContext())
     }
 
     class Presenter(var app: Application) : AbstractPresenter<Boolean>(app) {
 
-        private val dao = getUserDao(app)
-
-        fun edit(name: String) {
-            val userId = UserInfo.getUserId(app)
-            if (userId == 0L) {
-                return
-            }
-            runOnWorker {
-                val user = dao.get(userId)
-                if (user != null) {
-                    user.nickname = name
-                    if (dao.update(user) > 0) {
-                        UserInfo.saveUser(app, user)
-                        data.postValue(true)
-                        Bus.post(BusEvent.UPDATE_USER)
-                    }
-                }
+        fun add(name: String) {
+            single {
+                val label = Label(0, UserInfo.getUserId(app), name, 1, 0)
+                getLabelDao(app).add(label)
+            }.result { _, value ->
+                Bus.post(BusEvent.ADD_LABBEL, longValue = value ?: 0)
+                data.postValue(true)
             }
         }
     }

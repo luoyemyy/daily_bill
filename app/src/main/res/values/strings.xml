@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">每日支出</string>
 
+    <string name="sure">确认</string>
     <string name="know">知道了</string>
     <string name="account">金额</string>
     <string name="desc">描述</string>
@@ -33,9 +34,11 @@
     <string name="user_add">新增用户</string>
     <string name="user_edit">编辑用户</string>
     <string name="user_add_hint">请输入一个昵称</string>
-    <string name="user_add_start">确认</string>
     <string name="user_change">选择用户</string>
     <string name="user_delete">删除用户</string>
     <string name="user_auto_change">切换到新用户</string>
+
+    <string name="label_add">新增标签</string>
+    <string name="label_add_hint">请输入标签名称</string>
 
 </resources>

@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.bill.activity.main.MainActivity
@@ -41,7 +40,7 @@ class UserAddFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
-        mPresenter.newUserLiveData.observe(this, Observer {
+        mPresenter.data.observe(this, Observer {
             if (isLogin()) {
                 startActivity(Intent(context, MainActivity::class.java))
                 requireActivity().finish()
@@ -72,15 +71,13 @@ class UserAddFragment : Fragment() {
 
     private fun isLogin(): Boolean = arguments?.getBoolean("isLogin") == true
 
-    class Presenter(var app: Application) : AbstractPresenter<Any>(app) {
-
-        val newUserLiveData = MutableLiveData<Boolean>()
+    class Presenter(var app: Application) : AbstractPresenter<Boolean>(app) {
 
         fun add(name: String) {
             runOnWorker {
                 UserInfo.setDefaultUser(app, name) {
                     Bus.post(BusEvent.UPDATE_USER)
-                    newUserLiveData.postValue(true)
+                    data.postValue(true)
                 }
             }
         }

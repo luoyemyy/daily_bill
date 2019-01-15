@@ -15,7 +15,9 @@ import com.github.luoyemyy.bill.R
 import com.github.luoyemyy.bill.activity.base.BaseFragment
 import com.github.luoyemyy.bill.activity.login.LoginActivity
 import com.github.luoyemyy.bill.databinding.*
-import com.github.luoyemyy.bill.db.getDao
+import com.github.luoyemyy.bill.db.getBillDao
+import com.github.luoyemyy.bill.db.getFavorDao
+import com.github.luoyemyy.bill.db.getLabelDao
 import com.github.luoyemyy.bill.util.UserInfo
 import com.github.luoyemyy.ext.clearTime
 import com.github.luoyemyy.ext.dp2px
@@ -74,7 +76,12 @@ class MainFragment : BaseFragment() {
             }
         }
 
-        override fun bindContentViewHolder(binding: ViewDataBinding, content: Any, position: Int, payloads: MutableList<Any>): Boolean {
+        override fun bindContentViewHolder(
+            binding: ViewDataBinding,
+            content: Any,
+            position: Int,
+            payloads: MutableList<Any>
+        ): Boolean {
             val viewType = getItemViewType(position)
             return when {
                 viewType == 1 && content is Count && binding is FragmentMainRecyclerCountBinding -> {
@@ -161,7 +168,9 @@ class MainFragment : BaseFragment() {
 
     class Presenter(var app: Application) : AbstractRecyclerPresenter<Any>(app) {
 
-        private val dao = getDao(app)
+        private val billDao = getBillDao(app)
+        private val favorDao = getFavorDao(app)
+        private val labelDao = getLabelDao(app)
 
         override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<Any>? {
 
@@ -169,11 +178,11 @@ class MainFragment : BaseFragment() {
             val startTime = getTime(0, 0)
             val endTimeToday = getTime(1, 0)
             val endTImeMonth = getTime(0, 1)
-            val countToday = dao.sumMoneyByDate(userId, startTime, endTimeToday).toString()
-            val countMonth = dao.sumMoneyByDate(userId, startTime, endTImeMonth).toString()
+            val countToday = billDao.sumMoneyByDate(userId, startTime, endTimeToday).toString()
+            val countMonth = billDao.sumMoneyByDate(userId, startTime, endTImeMonth).toString()
             val count = Count(countToday, countMonth)
-            val add = dao.getShowLabel(userId).let { Add(it, it.toJsonString()) }
-            val favors = dao.getFavor(userId).map { Favor(it.id, it.summary) }
+            val add = labelDao.getShow(userId).let { Add(it, it.toJsonString()) }
+            val favors = favorDao.getAll(userId).map { Favor(it.id, it.summary) }
 
             return mutableListOf<Any>().apply {
                 add(count)

@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.GravityCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -16,7 +15,7 @@ import com.github.luoyemyy.bill.activity.base.BaseFragment
 import com.github.luoyemyy.bill.databinding.FragmentUserChangeBinding
 import com.github.luoyemyy.bill.databinding.FragmentUserChangeRecyclerBinding
 import com.github.luoyemyy.bill.db.User
-import com.github.luoyemyy.bill.db.getDao
+import com.github.luoyemyy.bill.db.getUserDao
 import com.github.luoyemyy.bill.util.BusEvent
 import com.github.luoyemyy.bill.util.UserInfo
 import com.github.luoyemyy.bus.Bus
@@ -92,7 +91,7 @@ class UserChangeFragment : BaseFragment() {
 
     class Presenter(var app: Application) : AbstractRecyclerPresenter<User>(app) {
 
-        private val dao = getDao(app)
+        private val dao = getUserDao(app)
         val changeUserLiveData = MutableLiveData<Boolean>()
 
         fun selectDefault(user: User?) {
@@ -106,7 +105,7 @@ class UserChangeFragment : BaseFragment() {
         }
 
         override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<User>? {
-            return dao.getAllUser()
+            return dao.getAll()
         }
     }
 }

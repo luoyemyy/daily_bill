@@ -1,6 +1,7 @@
 package com.github.luoyemyy.bill.activity.main
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.TextView
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
@@ -23,6 +24,9 @@ class MainActivity : BaseActivity(), BusResult {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
+        setSupportActionBar(mBinding.toolbar)
+
         mBinding.toolbar.setupWithNavController(findNavController(R.id.navFragment), mBinding.drawerLayout)
         mBinding.navigationView.setupWithNavController(findNavController(R.id.navFragment))
         mTxtName = mBinding.navigationView.getHeaderView(0).findViewById(R.id.txtName)
@@ -41,6 +45,10 @@ class MainActivity : BaseActivity(), BusResult {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return false
     }
 
     override fun busResult(event: String, msg: BusMsg) {

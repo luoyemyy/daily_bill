@@ -1,43 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_main"
-    app:startDestination="@id/mainFragment">
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/nav_main"
+            app:startDestination="@id/mainFragment">
 
     <fragment
-        android:id="@+id/mainFragment"
-        android:name="com.github.luoyemyy.bill.activity.main.MainFragment"
-        android:label="@string/app_name" />
+            android:id="@+id/mainFragment"
+            android:name="com.github.luoyemyy.bill.activity.main.MainFragment"
+            android:label="@string/app_name"/>
     <fragment
-        android:id="@+id/userAdd"
-        android:name="com.github.luoyemyy.bill.activity.user.UserAddFragment"
-        android:label="@string/nav_user_add" />
+            android:id="@+id/userAdd"
+            android:name="com.github.luoyemyy.bill.activity.user.UserAddFragment"
+            android:label="@string/nav_user_add"/>
     <fragment
-        android:id="@+id/bill"
-        android:name="com.github.luoyemyy.bill.activity.bill.BillFragment"
-        android:label="@string/nav_bill" />
+            android:id="@+id/bill"
+            android:name="com.github.luoyemyy.bill.activity.bill.BillFragment"
+            android:label="@string/nav_bill"/>
     <fragment
-        android:id="@+id/label"
-        android:name="com.github.luoyemyy.bill.activity.label.LabelFragment"
-        android:label="@string/nav_label" />
+            android:id="@+id/label"
+            android:name="com.github.luoyemyy.bill.activity.label.LabelFragment"
+            android:label="@string/nav_label">
+        <action android:id="@+id/action_label_to_labelAddFragment" app:destination="@id/labelAddFragment"/>
+    </fragment>
     <fragment
-        android:id="@+id/about"
-        android:name="com.github.luoyemyy.bill.activity.about.AboutFragment"
-        android:label="@string/nav_about" />
+            android:id="@+id/about"
+            android:name="com.github.luoyemyy.bill.activity.about.AboutFragment"
+            android:label="@string/nav_about"/>
     <fragment
-        android:id="@+id/favor"
-        android:name="com.github.luoyemyy.bill.activity.favor.FavorFragment"
-        android:label="@string/nav_favor" />
+            android:id="@+id/favor"
+            android:name="com.github.luoyemyy.bill.activity.favor.FavorFragment"
+            android:label="@string/nav_favor"/>
     <fragment
-        android:id="@+id/userChange"
-        android:name="com.github.luoyemyy.bill.activity.user.UserChangeFragment"
-        android:label="@string/nav_user_change" />
+            android:id="@+id/userChange"
+            android:name="com.github.luoyemyy.bill.activity.user.UserChangeFragment"
+            android:label="@string/nav_user_change"/>
     <fragment
-        android:id="@+id/data"
-        android:name="com.github.luoyemyy.bill.activity.data.DataFragment"
-        android:label="@string/nav_data" />
+            android:id="@+id/data"
+            android:name="com.github.luoyemyy.bill.activity.data.DataFragment"
+            android:label="@string/nav_data"/>
     <fragment
-        android:id="@+id/userEdit"
-        android:name="com.github.luoyemyy.bill.activity.user.UserEditFragment"
-        android:label="@string/user_edit" />
+            android:id="@+id/userEdit"
+            android:name="com.github.luoyemyy.bill.activity.user.UserEditFragment"
+            android:label="@string/user_edit"/>
+    <fragment
+            android:id="@+id/labelAddFragment"
+            android:name="com.github.luoyemyy.bill.activity.label.LabelAddFragment"
+            android:label="@string/label_add"/>
 </navigation>

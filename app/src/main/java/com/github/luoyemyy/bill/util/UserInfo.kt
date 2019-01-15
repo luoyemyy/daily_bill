@@ -3,7 +3,7 @@ package com.github.luoyemyy.bill.util
 import android.content.Context
 import androidx.annotation.WorkerThread
 import com.github.luoyemyy.bill.db.User
-import com.github.luoyemyy.bill.db.getDao
+import com.github.luoyemyy.bill.db.getUserDao
 import com.github.luoyemyy.config.editor
 import com.github.luoyemyy.config.spfLong
 import com.github.luoyemyy.config.spfString
@@ -19,13 +19,13 @@ object UserInfo {
 
     @WorkerThread
     fun setDefaultUser(context: Context, name: String, ok: () -> Unit) {
-        val dao = getDao(context)
-        val clearOld = dao.getDefaultUser()?.let {
+        val dao = getUserDao(context)
+        val clearOld = dao.getDefault()?.let {
             it.isDefault = 0
-            dao.updateUser(it) > 0
+            dao.update(it) > 0
         } ?: true
-        if (clearOld && dao.addUser(User(nickname = name, isDefault = 1)) > 0) {
-            dao.getDefaultUser()?.apply {
+        if (clearOld && dao.add(User(nickname = name, isDefault = 1)) > 0) {
+            dao.getDefault()?.apply {
                 UserInfo.saveUser(context, this)
                 ok()
             }
@@ -34,18 +34,18 @@ object UserInfo {
 
     @WorkerThread
     fun setDefaultUser(context: Context, userId: Long, ok: () -> Unit) {
-        val dao = getDao(context)
-        val newUser = dao.getUser(userId)?.apply {
+        val dao = getUserDao(context)
+        val newUser = dao.get(userId)?.apply {
             isDefault = 1
         } ?: return
 
-        val clearOld = dao.getDefaultUser()?.let {
+        val clearOld = dao.getDefault()?.let {
             it.isDefault = 0
-            dao.updateUser(it) > 0
+            dao.update(it) > 0
         } ?: true
 
-        if (clearOld && dao.updateUser(newUser) > 0) {
-            dao.getDefaultUser()?.apply {
+        if (clearOld && dao.update(newUser) > 0) {
+            dao.getDefault()?.apply {
                 UserInfo.saveUser(context, this)
                 ok()
             }
