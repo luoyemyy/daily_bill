@@ -35,9 +35,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
-            android:textColor="@color/text_content"
             android:paddingBottom="16dp"
-            android:text="@string/user_auto_change" />
+            android:text="@string/user_auto_change"
+            android:textColor="@color/text_content" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAdd"
@@ -45,6 +45,15 @@
             android:layout_height="wrap_content"
             android:enabled="false"
             android:text="@string/sure" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/layoutChips"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="34dp"
+            app:chipSpacing="8dp">
+
+        </com.google.android.material.chip.ChipGroup>
     </LinearLayout>
 
 </layout>

@@ -14,7 +14,7 @@
 
         <include
             android:id="@+id/layoutCount"
-            layout="@layout/fragment_main_recycler_count"
+            layout="@layout/fragment_main_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp" />
@@ -30,14 +30,14 @@
 
                 <include
                     android:id="@+id/layoutAdd"
-                    layout="@layout/fragment_main_recycler_add"
+                    layout="@layout/fragment_main_add"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp" />
 
                 <include
-                    android:id="@+id/layoutFavorHeader"
-                    layout="@layout/fragment_main_recycler_favor_header"
+                    android:id="@+id/layoutFavorTip"
+                    layout="@layout/fragment_main_favor_tip"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp" />

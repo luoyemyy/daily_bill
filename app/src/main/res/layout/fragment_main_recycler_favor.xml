@@ -5,8 +5,8 @@
     <data>
 
         <variable
-            name="text"
-            type="String" />
+            name="entity"
+            type="com.github.luoyemyy.bill.db.Favor" />
     </data>
 
 
@@ -14,11 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:elevation="1dp"
         android:ellipsize="end"
         android:lines="1"
         android:padding="16dp"
-        android:text="@{text}"
+        android:text="@{entity.summary}"
         android:textColor="@color/text_content"
         android:textSize="16sp"
         tools:text="12元-早餐" />

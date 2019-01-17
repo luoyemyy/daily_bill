@@ -5,7 +5,7 @@
     <data>
         <variable
             name="entity"
-            type="com.github.luoyemyy.bill.db.Label" />
+            type="com.github.luoyemyy.bill.db.Favor" />
     </data>
 
     <LinearLayout
@@ -28,19 +28,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@{entity.name}"
+            android:text="@{entity.summary}"
             android:textColor="@color/text_content"
             android:textSize="15sp"
-            tools:text="早餐" />
+            tools:text="12-早餐" />
 
-        <Switch
-            android:id="@+id/switchView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:checked="@{entity.show==1}"
-            tools:checked="true" />
     </LinearLayout>
 
 </layout>

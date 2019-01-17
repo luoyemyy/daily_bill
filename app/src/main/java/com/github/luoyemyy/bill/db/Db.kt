@@ -2,6 +2,7 @@ package com.github.luoyemyy.bill.db
 
 import android.content.Context
 import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.*
 
 @Database(entities = [Bill::class, Favor::class, Label::class, LabelRelation::class, User::class], version = 1)
@@ -21,9 +22,13 @@ abstract class Db : RoomDatabase() {
         private const val DB_NAME = "daily_bill"
 
         private fun createDb(appContext: Context): Db {
-            return Room.databaseBuilder(appContext, Db::class.java, DB_NAME).build()
+            return Room.databaseBuilder(appContext, Db::class.java, DB_NAME).addCallback(object : Callback() {
+                override fun onOpen(db: SupportSQLiteDatabase) {
+
+                }
+            }).build()
         }
-        
+
         fun getInstance(context: Context): Db {
             return instance ?: synchronized(this) {
                 instance ?: createDb(context).also { instance = it }

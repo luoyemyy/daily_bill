@@ -1,32 +1,31 @@
 package com.github.luoyemyy.bill.activity.main
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
-import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.ViewDataBinding
-import androidx.navigation.findNavController
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.MutableLiveData
 import com.github.luoyemyy.bill.R
 import com.github.luoyemyy.bill.activity.base.BaseFragment
 import com.github.luoyemyy.bill.activity.login.LoginActivity
-import com.github.luoyemyy.bill.databinding.*
-import com.github.luoyemyy.bill.db.getBillDao
-import com.github.luoyemyy.bill.db.getFavorDao
-import com.github.luoyemyy.bill.db.getLabelDao
-import com.github.luoyemyy.bill.util.UserInfo
+import com.github.luoyemyy.bill.databinding.FragmentMainBinding
+import com.github.luoyemyy.bill.databinding.FragmentMainRecyclerFavorBinding
+import com.github.luoyemyy.bill.db.*
+import com.github.luoyemyy.bill.util.*
+import com.github.luoyemyy.bus.Bus
+import com.github.luoyemyy.bus.BusMsg
+import com.github.luoyemyy.bus.BusResult
+import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.ext.clearTime
-import com.github.luoyemyy.ext.dp2px
-import com.github.luoyemyy.ext.toJsonString
+import com.github.luoyemyy.ext.hide
+import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.mvp.getRecyclerPresenter
 import com.github.luoyemyy.mvp.recycler.*
 import java.util.*
 
-class MainFragment : BaseFragment() {
+class MainFragment : BaseFragment(), BusResult {
 
     private lateinit var mBinding: FragmentMainBinding
     private lateinit var mPresenter: Presenter
@@ -38,160 +37,199 @@ class MainFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mBinding.recyclerView.apply {
             setLinearManager()
-            addItemDecoration(Decoration(requireContext()))
+            addItemDecoration(RecyclerDecoration.middle(requireContext(), spaceUnit = true))
         }
         mPresenter = getRecyclerPresenter(this, Adapter())
+        mPresenter.labelLiveData.observe(this, androidx.lifecycle.Observer {
+            chips(mBinding.layoutAdd.layoutChips, it)
+        })
+        mPresenter.countLiveData.observe(this, androidx.lifecycle.Observer {
+            mBinding.layoutCount.entity = it
+        })
+        mPresenter.addLiveData.observe(this, androidx.lifecycle.Observer {
+            if (it) resetInput()
+        })
+        mPresenter.moneyLiveData.observe(this, androidx.lifecycle.Observer {
+            mBinding.layoutAdd.layoutMoney.editText?.setText(it)
+        })
+        mPresenter.descLiveData.observe(this, androidx.lifecycle.Observer {
+            mBinding.layoutAdd.layoutDesc.editText?.setText(it)
+        })
+
+        //add
+        mBinding.layoutAdd.layoutMoney.editText?.apply {
+            limitMoney()
+            addTextChangedListener(object : TextChangeAdapter() {
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    mPresenter.updateMoney(s.toString())
+                }
+            })
+        }
+        mBinding.layoutAdd.layoutDesc.editText?.apply {
+            addTextChangedListener(object : TextChangeAdapter() {
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    mPresenter.updateDesc(s.toString())
+                }
+            })
+        }
+
+        mBinding.layoutAdd.btnAdd.setOnClickListener {
+            mPresenter.add(mBinding.layoutAdd.layoutMoney.editText?.text?.toString(), mBinding.layoutAdd.layoutDesc.editText?.text?.toString())
+        }
+        mBinding.layoutAdd.btnReset.setOnClickListener {
+            resetInput()
+        }
+
+        //favor tip
+        if (UserInfo.getFavorTip(requireContext())) {
+            mBinding.layoutFavorTip.root.hide()
+        } else {
+            mBinding.layoutFavorTip.btnOk.setOnClickListener {
+                UserInfo.hideFavorTip(requireContext())
+                mBinding.layoutFavorTip.root.hide()
+            }
+        }
 
         if (UserInfo.getUserId(requireContext()) == 0L) {
             //还没有用户，进入创建用户页，或者选择用户页
             startActivity(Intent(requireContext(), LoginActivity::class.java))
             activity?.finish()
         } else {
+            mPresenter.getInput()
+            mPresenter.getCount()
+            mPresenter.getLabel()
             mPresenter.loadInit(arguments)
+        }
+
+        Bus.addCallback(lifecycle, this, BusEvent.UPDATE_SHOW_LABEL)
+    }
+
+    override fun busResult(event: String, msg: BusMsg) {
+        when (event) {
+            BusEvent.UPDATE_SHOW_LABEL -> mPresenter.getLabel(true, mPresenter.getCheckedLabelIds())
         }
     }
 
-    inner class Adapter : AbstractMultiRecyclerAdapter(mBinding.recyclerView) {
+    private fun resetInput() {
+        mBinding.layoutAdd.layoutMoney.editText?.setText("")
+        mBinding.layoutAdd.layoutDesc.editText?.setText("")
+        mPresenter.resetLabel()
+    }
+
+    inner class Adapter : AbstractSingleRecyclerAdapter<Favor, FragmentMainRecyclerFavorBinding>(mBinding.recyclerView) {
 
         override fun enableLoadMore(): Boolean = false
 
-        override fun bindContentViewHolder(binding: ViewDataBinding, content: Any, position: Int) {
-            when {
-                content is Count && binding is FragmentMainRecyclerCountBinding -> {
-                    binding.entity = content
-                    binding.executePendingBindings()
-                }
-                content is Add && binding is FragmentMainRecyclerAddBinding -> {
-                    binding.entity = content
-                    binding.executePendingBindings()
-                }
-                content is FavorHeader && binding is FragmentMainRecyclerFavorHeaderBinding -> {
-                    binding.text = content.tip
-                    binding.executePendingBindings()
-                }
-                content is Favor && binding is FragmentMainRecyclerFavorBinding -> {
-                    binding.text = content.detail
-                    binding.executePendingBindings()
-                }
-            }
+        override fun enableEmpty(): Boolean = false
+
+        override fun bindContentViewHolder(binding: FragmentMainRecyclerFavorBinding, content: Favor, position: Int) {
+            binding.entity = content
+            binding.executePendingBindings()
         }
 
-        override fun bindContentViewHolder(
-            binding: ViewDataBinding,
-            content: Any,
-            position: Int,
-            payloads: MutableList<Any>
-        ): Boolean {
-            val viewType = getItemViewType(position)
-            return when {
-                viewType == 1 && content is Count && binding is FragmentMainRecyclerCountBinding -> {
-                    binding.entity = content
-                    binding.executePendingBindings()
-                    true
-                }
-                viewType == 1 && content is Add && binding is FragmentMainRecyclerAddBinding -> {
-                    binding.entity = content
-                    binding.executePendingBindings()
-                    true
-                }
-                else -> false
-            }
-        }
-
-        override fun getItemClickViews(binding: ViewDataBinding): Array<View> {
-            return when (binding) {
-                is FragmentMainRecyclerCountBinding -> {
-                    arrayOf(binding.txtToday, binding.txtMonth)
-                }
-                is FragmentMainRecyclerAddBinding -> {
-                    arrayOf(binding.btnReset, binding.btnAdd)
-                }
-                is FragmentMainRecyclerFavorHeaderBinding -> {
-                    arrayOf(binding.btnOk)
-                }
-                is FragmentMainRecyclerFavorBinding -> {
-                    arrayOf(binding.root)
-                }
-                else -> arrayOf()
-            }
-        }
-
-        override fun onItemClickListener(vh: VH<ViewDataBinding>, view: View?) {
-            val binding = vh.binding ?: return
-            when (binding) {
-                is FragmentMainRecyclerCountBinding -> {
-                    if (view == binding.txtToday) {
-                        view.findNavController().navigate(R.id.bill)
-                    } else if (view == binding.txtMonth) {
-                        view.findNavController().navigate(R.id.bill)
-                    }
-                }
-                is FragmentMainRecyclerAddBinding -> {
-                    if (view == binding.btnReset) {
-                        //todo
-                    } else if (view == binding.btnAdd) {
-                        //todo
-                    }
-                }
-                is FragmentMainRecyclerFavorHeaderBinding -> {
-                    val header = getItem(2) ?: return
-                    mPresenter.getDataSet().remove(listOf(header), this)
-                }
-                is FragmentMainRecyclerFavorBinding -> {
-                    //todo
-                }
-            }
-        }
-
-        override fun bindItemEvents(vh: VH<ViewDataBinding>) {
-            val binding = vh.binding as? FragmentMainRecyclerFavorBinding ?: return
-            binding.root.setOnLongClickListener {
-                //todo
-                return@setOnLongClickListener true
-            }
-        }
-
-        override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ViewDataBinding? {
-            return when (viewType) {
-                1 -> FragmentMainRecyclerCountBinding.inflate(inflater, parent, false)
-                2 -> FragmentMainRecyclerAddBinding.inflate(inflater, parent, false)
-                3 -> FragmentMainRecyclerFavorHeaderBinding.inflate(inflater, parent, false)
-                4 -> FragmentMainRecyclerFavorBinding.inflate(inflater, parent, false)
-                else -> null
-            }
-        }
-
-        override fun getContentType(position: Int, item: Any?): Int {
-            return (item as? MainData)?.type ?: 0
+        override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): FragmentMainRecyclerFavorBinding? {
+            return FragmentMainRecyclerFavorBinding.inflate(inflater, parent, false)
         }
     }
 
-    class Presenter(var app: Application) : AbstractRecyclerPresenter<Any>(app) {
+    class Presenter(var app: Application) : AbstractRecyclerPresenter<Favor>(app) {
 
         private val billDao = getBillDao(app)
         private val favorDao = getFavorDao(app)
         private val labelDao = getLabelDao(app)
+        private var mMoney: String? = null
+        private var mDesc: String? = null
 
-        override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<Any>? {
+        val labelLiveData = MutableLiveData<List<Label>>()
+        val countLiveData = MutableLiveData<Count>()
+        val addLiveData = MutableLiveData<Boolean>()
+        val moneyLiveData = MutableLiveData<String>()
+        val descLiveData = MutableLiveData<String>()
 
-            val userId = UserInfo.getUserId(app)
-            val startTime = getTime(0, 0)
-            val endTimeToday = getTime(1, 0)
-            val endTImeMonth = getTime(0, 1)
-            val countToday = billDao.sumMoneyByDate(userId, startTime, endTimeToday).toString()
-            val countMonth = billDao.sumMoneyByDate(userId, startTime, endTImeMonth).toString()
-            val count = Count(countToday, countMonth)
-            val add = labelDao.getShow(userId).let { Add(it, it.toJsonString()) }
-            val favors = favorDao.getAll(userId).map { Favor(it.id, it.summary) }
+        fun updateMoney(money: String?) {
+            mMoney = money
+        }
 
-            return mutableListOf<Any>().apply {
-                add(count)
-                add(add)
-                add(FavorHeader(app.getString(R.string.main_shortcut_tip)))
-                if (favors.isNotEmpty()) {
-                    addAll(favors)
+        fun updateDesc(desc: String?) {
+            mDesc = desc
+        }
+
+        fun getInput() {
+            moneyLiveData.postValue(mMoney)
+            descLiveData.postValue(mDesc)
+        }
+
+        fun getCount(reload: Boolean = false) {
+            if (isInitialized() && !reload) {
+                countLiveData.postValue(countLiveData.value)
+            } else {
+                runOnWorker {
+                    val userId = UserInfo.getUserId(app)
+                    val startTime = getTime(0, 0)
+                    val endTimeToday = getTime(1, 0)
+                    val endTImeMonth = getTime(0, 1)
+                    val countToday = billDao.sumMoneyByDate(userId, startTime, endTimeToday)
+                    val countMonth = billDao.sumMoneyByDate(userId, startTime, endTImeMonth)
+                    countLiveData.postValue(Count(formatMoney(countToday), formatMoney(countMonth)))
+                    setInitialized()
                 }
             }
+        }
+
+        fun getLabel(reload: Boolean = false, checkedLabelIds: List<Long>? = null) {
+            if (isInitialized() && !reload) {
+                labelLiveData.postValue(labelLiveData.value)
+            } else {
+                runOnWorker {
+                    val showLabels = labelDao.getShow(UserInfo.getUserId(app))
+                    if (showLabels.isNotEmpty() && checkedLabelIds != null && checkedLabelIds.isNotEmpty()) {
+                        showLabels.forEach {
+                            if (checkedLabelIds.contains(it.id)) {
+                                it.selected = true
+                            }
+                        }
+                    }
+                    labelLiveData.postValue(showLabels)
+                    setInitialized()
+                }
+            }
+        }
+
+        fun resetLabel() {
+            labelLiveData.value = labelLiveData.value?.map {
+                it.selected = false
+                it
+            }
+        }
+
+        fun getCheckedLabelIds(): List<Long>? = getCheckedLabels()?.map { it.id }
+
+        private fun getCheckedLabels(): List<Label>? {
+            return labelLiveData.value?.filter { it.selected }
+        }
+
+        fun add(money: String?, desc: String?) {
+            if (money == null || money.isEmpty()) {
+                app.toast(R.string.main_money_tip)
+                return
+            }
+            runOnWorker {
+                val bill = Bill(userId = UserInfo.getUserId(app), money = money.toDouble(), description = desc, date = System.currentTimeMillis())
+                val rowId = billDao.add(bill)
+                val addBill = billDao.getByRowId(rowId) ?: return@runOnWorker
+                getCheckedLabels()?.apply {
+                    addBill.description = money + "-" + this.joinToString("-") { it.name ?: "" } + if (desc.isNullOrEmpty()) "" else "-$desc"
+                    val relations = this.map { LabelRelation(type = 1, relationId = addBill.id, labelId = it.id) }
+                    billDao.addLabelRelation(relations)
+                    billDao.update(addBill)
+                }
+                addLiveData.postValue(true)
+                getCount(true)
+            }
+        }
+
+        override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<Favor>? {
+            return favorDao.getAll(UserInfo.getUserId(app))
         }
 
         private fun getTime(addDay: Int, addMonth: Int): Long {
@@ -205,16 +243,5 @@ class MainFragment : BaseFragment() {
             return calender.timeInMillis
         }
 
-    }
-
-    inner class Decoration(context: Context) : RecyclerView.ItemDecoration() {
-        private val space = context.dp2px(8)
-        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-            when (parent.getChildAdapterPosition(view)) {
-                0 -> outRect.set(0, space, 0, 0)
-                1 -> outRect.set(0, space, 0, space)
-                else -> outRect.bottom = 1
-            }
-        }
     }
 }

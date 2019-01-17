@@ -6,11 +6,14 @@
     <string name="account">金额</string>
     <string name="desc">描述</string>
     <string name="label">标签</string>
-    <string name="label1">早餐</string>
-    <string name="label2">午餐</string>
-    <string name="label3">晚餐</string>
-    <string name="label4">网络购物</string>
-    <string name="label5">超市</string>
+
+    <string-array name="suggest_label">
+        <item>早餐</item>
+        <item>午餐</item>
+        <item>晚餐</item>
+        <item>网络购物</item>
+        <item>超市购物</item>
+    </string-array>
 
     <string name="nav_tip">记录每一笔支出</string>
     <string name="nav_bill">我的账单</string>
@@ -29,6 +32,7 @@
     <string name="main_today_list">今日支出</string>
     <string name="main_reset">重置</string>
     <string name="main_add">记一笔</string>
+    <string name="main_money_tip">请输入金额</string>
     <string name="main_shortcut_tip">点击快捷添加支出记录，长按修改金额。</string>
 
     <string name="user_add">新增用户</string>
@@ -39,6 +43,12 @@
     <string name="user_auto_change">切换到新用户</string>
 
     <string name="label_add">新增标签</string>
+    <string name="label_edit">编辑标签</string>
+    <string name="label_delete">删除标签</string>
     <string name="label_add_hint">请输入标签名称</string>
+
+    <string name="favor_add">新增常用支出</string>
+    <string name="favor_edit">编辑常用支出</string>
+    <string name="favor_delete">删除常用支出</string>
 
 </resources>

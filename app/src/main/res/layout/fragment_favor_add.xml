@@ -2,30 +2,21 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-
-        <variable
-            name="entity"
-            type="com.github.luoyemyy.bill.activity.main.Add" />
-    </data>
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@color/white"
-        android:elevation="1dp"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutMoney"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginTop="40dp"
             android:hint="@string/account"
             app:hintEnabled="true">
 
@@ -43,16 +34,14 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
             android:hint="@string/desc"
             app:hintEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:imeOptions="actionDone"
+                android:imeOptions="actionNext"
                 android:inputType="text"
                 android:lines="1"
                 android:textSize="16sp" />
@@ -61,14 +50,11 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
             android:background="@drawable/border_r4">
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/layoutChips"
-                chips="@{entity.chips}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
@@ -78,35 +64,13 @@
 
         </FrameLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAdd"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:allowStacking="true">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReset"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/main_reset"
-                android:textColor="@color/text_content"
-                app:layout_constraintRight_toLeftOf="@id/btnAdd" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAdd"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginEnd="8dp"
-                android:text="@string/main_add"
-                android:textColor="@color/text_content"
-                app:layout_constraintRight_toRightOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
+            android:layout_marginTop="16dp"
+            android:enabled="false"
+            android:text="@string/sure" />
     </LinearLayout>
-
 
 </layout>
