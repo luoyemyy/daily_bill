@@ -33,7 +33,8 @@
     <string name="main_reset">重置</string>
     <string name="main_add">记一笔</string>
     <string name="main_money_tip">请输入金额</string>
-    <string name="main_shortcut_tip">点击快捷添加支出记录，长按修改金额。</string>
+    <string name="main_shortcut_tip">试一试点击和长按以下常用支出项。</string>
+    <string name="main_invalidate_favor">该条常用支出数据无效</string>
 
     <string name="user_add">新增用户</string>
     <string name="user_edit">编辑用户</string>

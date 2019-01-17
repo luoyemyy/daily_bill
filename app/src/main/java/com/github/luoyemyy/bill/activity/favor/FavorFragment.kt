@@ -74,7 +74,7 @@ class FavorFragment : BaseFragment(), BusResult {
     override fun busResult(event: String, msg: BusMsg) {
         when (event) {
             BusEvent.ADD_FAVOR -> mPresenter.addFavor(msg.longValue)
-            BusEvent.EDIT_LABEL -> mPresenter.editFavor(msg.longValue)
+            BusEvent.EDIT_FAVOR -> mPresenter.editFavor(msg.longValue)
         }
     }
 
@@ -170,7 +170,7 @@ class FavorFragment : BaseFragment(), BusResult {
                         getDataSet().addDataAfter(null, listOf(value), getAdapter())
                         mSort = true
                         saveNewSort()
-//                        Bus.post(BusEvent.UPDATE_SHOW_FAVOR)
+                        //                        Bus.post(BusEvent.UPDATE_SHOW_FAVOR)
                     }
                 }
             }
@@ -183,6 +183,7 @@ class FavorFragment : BaseFragment(), BusResult {
             }.result { ok, value ->
                 if (ok && value != null) {
                     val favor = getDataSet().dataList().find { it.id == id } ?: return@result
+                    favor.summary = value.summary
                     getAdapterSupport()?.apply {
                         getDataSet().change(favor, getAdapter())
                         Bus.post(BusEvent.UPDATE_SHOW_FAVOR)

@@ -15,8 +15,17 @@ import com.google.android.material.chip.ChipGroup
 import java.lang.reflect.Method
 import java.text.DecimalFormat
 
+fun summary(money: Double, labels: List<Label>?, desc: String?): String {
+    val join = labels?.joinToString("-") { it.name ?: " " }
+    return formatMoney2(money) + (if (join.isNullOrEmpty()) "" else "-$join") + (if (desc.isNullOrEmpty()) "" else "-$desc")
+}
+
 fun formatMoney(money: Double): String {
     return DecimalFormat("0.00").format(money)
+}
+
+fun formatMoney2(money: Double): String {
+    return DecimalFormat("0.##").format(money)
 }
 
 fun EditText.setKeyAction(activity: Activity, callback: (String) -> Unit = {}) {

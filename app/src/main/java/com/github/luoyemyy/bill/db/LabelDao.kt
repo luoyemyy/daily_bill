@@ -29,4 +29,7 @@ interface LabelDao {
     @Query("select * from label where userId = :userId order by sort asc")
     fun getAll(userId: Long): List<Label>
 
+    @Query("select * from label where id in (:ids)")
+    fun getByIds(ids: List<Long>): List<Label>
+
 }
