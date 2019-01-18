@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
+        xmlns:app="http://schemas.android.com/apk/res-auto">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -27,33 +26,47 @@
                 android:inputType="text"
                 android:lines="1"
                 android:maxLength="6"
-                android:textSize="16sp" />
+                android:textSize="16sp"/>
         </com.google.android.material.textfield.TextInputLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/border_r4">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/layoutChips"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                app:chipSpacing="8dp">
+
+            </com.google.android.material.chip.ChipGroup>
+
+        </FrameLayout>
 
         <Switch
             android:id="@+id/switchView"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
-            android:paddingBottom="16dp"
+            android:paddingBottom="8dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:checked="true"
+            android:layout_gravity="end"
             android:text="@string/user_auto_change"
-            android:textColor="@color/text_content" />
+            android:textColor="@color/text_content"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAdd"
+            android:layout_marginTop="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:text="@string/sure" />
+            android:text="@string/sure"/>
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/layoutChips"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="34dp"
-            app:chipSpacing="8dp">
-
-        </com.google.android.material.chip.ChipGroup>
     </LinearLayout>
 
 </layout>

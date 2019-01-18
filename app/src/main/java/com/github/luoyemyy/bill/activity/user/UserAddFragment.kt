@@ -13,18 +13,16 @@ import com.github.luoyemyy.bill.R
 import com.github.luoyemyy.bill.activity.main.MainActivity
 import com.github.luoyemyy.bill.databinding.FragmentUserAddBinding
 import com.github.luoyemyy.bill.db.Label
+import com.github.luoyemyy.bill.db.User
 import com.github.luoyemyy.bill.db.getLabelDao
-import com.github.luoyemyy.bill.util.BusEvent
-import com.github.luoyemyy.bill.util.TextChangeAdapter
-import com.github.luoyemyy.bill.util.UserInfo
-import com.github.luoyemyy.bill.util.setKeyAction
+import com.github.luoyemyy.bill.db.getUserDao
+import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.ext.hide
 import com.github.luoyemyy.mvp.AbstractPresenter
+import com.github.luoyemyy.mvp.Flag
 import com.github.luoyemyy.mvp.getPresenter
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 
 class UserAddFragment : Fragment() {
 
@@ -45,87 +43,77 @@ class UserAddFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
-        mPresenter.data.observe(this, Observer {
-            if (mPresenter.isLogin(arguments)) {
-                startActivity(Intent(context, MainActivity::class.java))
-                requireActivity().finish()
-            } else {
-                findNavController().navigateUp()
+        mPresenter.setFlagObserver(this, Observer {
+            if (it == Flag.SUCCESS) {
+                if (mPresenter.isLogin(arguments)) {
+                    startActivity(Intent(context, MainActivity::class.java))
+                    requireActivity().finish()
+                } else {
+                    findNavController().navigateUp()
+                }
             }
         })
 
         mBinding.apply {
             layoutName.editText?.apply {
                 setKeyAction(requireActivity())
-                addTextChangedListener(object : TextChangeAdapter() {
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                        btnAdd.isEnabled = count > 0
-                    }
-                })
+                submitEnable(btnAdd)
             }
             btnAdd.setOnClickListener {
                 val name = layoutName.editText?.text?.toString() ?: return@setOnClickListener
-                mPresenter.add(name)
+                val setDefault = switchView.isChecked
+                mPresenter.add(name, setDefault)
             }
         }
 
         if (mPresenter.isLogin(arguments)) {
             mBinding.switchView.hide()
-            chips(mBinding.layoutChips, mPresenter.suggestLabels())
+        } else {
+            mBinding.switchView.isChecked = false
         }
+        mBinding.layoutChips.chips(mPresenter.getLabels())
     }
 
-    private fun chips(chipGroup: ChipGroup, chips: List<String>?) {
-        if (chips == null || chips.isEmpty()) return
-        val inflater = LayoutInflater.from(chipGroup.context)
-        (0 until chips.size).forEach {
-            val chip = inflater.inflate(R.layout.layout_chip_label, chipGroup, false) as Chip
-            chip.text = chips[it]
-            chipGroup.addView(chip)
-            chip.setOnCheckedChangeListener { c, isChecked ->
-                mPresenter.checkToggle(mBinding.layoutChips.indexOfChild(c), isChecked)
-            }
-        }
-    }
 
-    class Presenter(var app: Application) : AbstractPresenter<Boolean>(app) {
+    class Presenter(var app: Application) : AbstractPresenter<String>(app) {
 
-        private var mSuggestLabels: List<String>? = null
+        private var mLabels = app.resources.getStringArray(R.array.suggest_label).mapTo(mutableListOf()) { Label(name = it) }
         private var mIsLogin = false
-        private var mCheckLabelSet = mutableSetOf<Int>()
+        private val mUserDao = getUserDao(app)
+        private val mLabelDao = getLabelDao(app)
 
         fun isLogin(bundle: Bundle?): Boolean {
             mIsLogin = bundle?.getBoolean("isLogin") == true
             return mIsLogin
         }
 
-        fun checkToggle(index: Int, isChecked: Boolean) {
-            if (isChecked) {
-                mCheckLabelSet.add(index)
-            } else {
-                mCheckLabelSet.remove(index)
+        fun getLabels(): List<Label> {
+            return mLabels
+        }
+
+        private fun getSelectedLabels(userId: Long): List<Label> {
+            return mLabels.filter { it.selected }.mapIndexed { index, label ->
+                label.userId = userId
+                label.show = 1
+                label.sort = index + 1
+                label
             }
         }
 
-        fun suggestLabels(): List<String>? {
-            return app.resources.getStringArray(R.array.suggest_label).toList().apply {
-                mSuggestLabels = this
-            }
-        }
-
-        fun add(name: String) {
+        fun add(name: String, setDefault: Boolean) {
             runOnWorker {
-                UserInfo.setDefaultUser(app, name) {
-                    if (mIsLogin) {
-                        val userId = UserInfo.getUserId(app)
-                        val labels = mSuggestLabels?.filterIndexed { index, _ -> mCheckLabelSet.contains(index) }?.mapIndexed { index, s -> Label(0, userId, s, 1, index + 1) }
-                        if (labels != null && labels.isNotEmpty()) {
-                            getLabelDao(app).addAll(labels)
-                        }
+                val user = mUserDao.getByRowId(mUserDao.add(User(0, name, 0))) ?: return@runOnWorker
+                getSelectedLabels(user.id).apply {
+                    if (isNotEmpty()) {
+                        mLabelDao.addAll(this)
                     }
-                    Bus.post(BusEvent.UPDATE_USER)
-                    data.postValue(true)
                 }
+                if (setDefault) {
+                    UserInfo.setDefaultUser(app, user.id)
+                    flag.postValue(Flag.SUCCESS)
+                    Bus.post(BusEvent.CHANGE_USER)
+                }
+                Bus.post(BusEvent.ADD_USER)
             }
         }
     }

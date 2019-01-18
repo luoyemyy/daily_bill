@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -31,11 +30,11 @@ class FavorAddFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
-        mPresenter.data.observe(this, Observer {
+        mPresenter.setFlagObserver(this, Observer {
             findNavController().navigateUp()
         })
         mPresenter.labelLiveData.observe(this, Observer {
-            chips(mBinding.layoutChips, it)
+            mBinding.layoutChips.chips(it)
         })
 
         mBinding.apply {

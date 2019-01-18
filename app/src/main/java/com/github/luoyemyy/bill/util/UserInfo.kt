@@ -18,42 +18,15 @@ object UserInfo {
     fun hideFavorTip(context: Context) {
         context.editor().putBoolean("favor_tip", true).apply()
     }
+
     fun saveUser(context: Context, user: User) {
         context.editor().putLong("userId", user.id).putString("username", user.nickname).apply()
     }
 
     @WorkerThread
-    fun setDefaultUser(context: Context, name: String, ok: () -> Unit) {
+    fun setDefaultUser(context: Context, userId: Long) {
         val dao = getUserDao(context)
-        val clearOld = dao.getDefault()?.let {
-            it.isDefault = 0
-            dao.update(it) > 0
-        } ?: true
-        if (clearOld && dao.add(User(nickname = name, isDefault = 1)) > 0) {
-            dao.getDefault()?.apply {
-                UserInfo.saveUser(context, this)
-                ok()
-            }
-        }
-    }
-
-    @WorkerThread
-    fun setDefaultUser(context: Context, userId: Long, ok: () -> Unit) {
-        val dao = getUserDao(context)
-        val newUser = dao.get(userId)?.apply {
-            isDefault = 1
-        } ?: return
-
-        val clearOld = dao.getDefault()?.let {
-            it.isDefault = 0
-            dao.update(it) > 0
-        } ?: true
-
-        if (clearOld && dao.update(newUser) > 0) {
-            dao.getDefault()?.apply {
-                UserInfo.saveUser(context, this)
-                ok()
-            }
-        }
+        dao.deleteDefault()
+        dao.updateDefault(userId)
     }
 }

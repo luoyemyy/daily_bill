@@ -33,9 +33,9 @@ class FavorEditFragment : BaseFragment() {
             findNavController().navigateUp()
         })
         mPresenter.labelLiveData.observe(this, Observer {
-            chips(mBinding.layoutChips, it)
+            mBinding.layoutChips.chips(it)
         })
-        mPresenter.data.observe(this, Observer {
+        mPresenter.setDataObserver(this, Observer {
             mBinding.entity = it
             if (it != null) {
                 mBinding.money = formatMoney2(it.money)

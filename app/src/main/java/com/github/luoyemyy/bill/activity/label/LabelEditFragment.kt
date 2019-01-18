@@ -35,7 +35,7 @@ class LabelEditFragment : BaseFragment() {
         mPresenter.resultLiveData.observe(this, Observer {
             findNavController().navigateUp()
         })
-        mPresenter.data.observe(this, Observer {
+        mPresenter.setDataObserver(this, Observer {
             mBinding.layoutName.editText?.setText(it.name)
         })
 

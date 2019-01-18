@@ -31,7 +31,7 @@ class LabelAddFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
-        mPresenter.data.observe(this, Observer {
+        mPresenter.setFlagObserver(this, Observer {
             findNavController().navigateUp()
         })
 

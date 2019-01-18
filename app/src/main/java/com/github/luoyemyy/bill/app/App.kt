@@ -16,17 +16,11 @@ class App : Application() {
             }
 
             override fun onRegister(currentCallback: Bus.Callback, allCallbacks: List<Bus.Callback>) {
-                Log.e(
-                    "App",
-                    "onRegister:  current=${currentCallback.interceptEvent()}, callbacks=${allCallbacks.map { it.interceptEvent() }}"
-                )
+                Log.e("App", "onRegister:  current=${currentCallback.interceptEvent()}, callbacks=${allCallbacks.map { it.interceptEvent() }}")
             }
 
             override fun onUnRegister(currentCallback: Bus.Callback, allCallbacks: List<Bus.Callback>) {
-                Log.e(
-                    "App",
-                    "onUnRegister:  current=${currentCallback.interceptEvent()}, callbacks=${allCallbacks.map { it.interceptEvent() }}"
-                )
+                Log.e("App", "onUnRegister:  current=${currentCallback.interceptEvent()}, callbacks=${allCallbacks.map { it.interceptEvent() }}")
             }
         })
     }

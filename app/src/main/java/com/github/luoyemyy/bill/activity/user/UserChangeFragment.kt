@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.bill.R
@@ -18,6 +17,7 @@ import com.github.luoyemyy.bill.db.User
 import com.github.luoyemyy.bill.db.getUserDao
 import com.github.luoyemyy.bill.util.BusEvent
 import com.github.luoyemyy.bill.util.UserInfo
+import com.github.luoyemyy.bill.util.setup
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.mvp.getRecyclerPresenter
@@ -37,16 +37,15 @@ class UserChangeFragment : BaseFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        mPresenter = getRecyclerPresenter(this, Adapter())
         mBinding.recyclerView.setHasFixedSize(true)
         mBinding.recyclerView.setLinearManager()
         mBinding.recyclerView.addItemDecoration(RecyclerDecoration.middle(requireContext(), spaceUnit = true))
-        mBinding.swipeRefreshLayout.setOnRefreshListener {
-            mPresenter.loadRefresh()
-        }
-        mPresenter = getRecyclerPresenter(this, Adapter())
-        mPresenter.changeUserLiveData.observe(this, Observer {
+        mBinding.swipeRefreshLayout.setup(mPresenter)
+        mPresenter.setFlagObserver(this, Observer {
             findNavController().navigateUp()
         })
+
         mPresenter.loadInit()
     }
 
@@ -79,7 +78,7 @@ class UserChangeFragment : BaseFragment() {
                     PopupMenu(requireContext(), it, Gravity.CENTER).apply {
                         inflate(R.menu.user)
                         setOnMenuItemClickListener {
-
+                            mPresenter.deleteUser(vh.adapterPosition)
                             return@setOnMenuItemClickListener true
                         }
                     }.show()
@@ -92,16 +91,18 @@ class UserChangeFragment : BaseFragment() {
     class Presenter(var app: Application) : AbstractRecyclerPresenter<User>(app) {
 
         private val dao = getUserDao(app)
-        val changeUserLiveData = MutableLiveData<Boolean>()
 
         fun selectDefault(user: User?) {
-            if (user == null) return
+            if (user == null || user.id == UserInfo.getUserId(app)) return
             runOnWorker {
-                UserInfo.setDefaultUser(app, user.id) {
-                    Bus.post(BusEvent.UPDATE_USER)
-                    changeUserLiveData.postValue(true)
-                }
+                UserInfo.setDefaultUser(app, user.id)
+                flag.postValue(1)
+                Bus.post(BusEvent.CHANGE_USER)
             }
+        }
+
+        fun deleteUser(position: Int) {
+
         }
 
         override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<User>? {

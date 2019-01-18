@@ -42,7 +42,7 @@ class MainFragment : BaseFragment(), BusResult {
         }
         mPresenter = getRecyclerPresenter(this, Adapter())
         mPresenter.labelLiveData.observe(this, androidx.lifecycle.Observer {
-            chips(mBinding.layoutAdd.layoutChips, it)
+            mBinding.layoutAdd.layoutChips.chips(it)
         })
         mPresenter.countLiveData.observe(this, androidx.lifecycle.Observer {
             mBinding.layoutCount.entity = it
@@ -247,8 +247,8 @@ class MainFragment : BaseFragment(), BusResult {
             mDesc = favor.description
             getInput()
             runOnWorker {
-                val favorLabelIds = mFavorDao.getLabels(favor.id).map{ it.id }
-                val copyFavorLabelIds= favorLabelIds.toMutableList()
+                val favorLabelIds = mFavorDao.getLabels(favor.id).map { it.id }
+                val copyFavorLabelIds = favorLabelIds.toMutableList()
                 val selectLabelIds = labelLiveData.value?.mapTo(mutableSetOf()) { it.id } ?: mutableSetOf<Long>()
                 copyFavorLabelIds.apply {
                     this.removeAll(selectLabelIds)

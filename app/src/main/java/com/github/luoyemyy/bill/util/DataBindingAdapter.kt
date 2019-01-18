@@ -1,18 +1,25 @@
 package com.github.luoyemyy.bill.util
 
-import android.widget.TextView
+import android.view.View
 import androidx.databinding.BindingAdapter
-import com.github.luoyemyy.bill.R
 
 object DataBindingAdapter {
 
     @JvmStatic
-    @BindingAdapter("user_selected")
-    fun userSelected(textView: TextView, isDefault: Int) {
-        if (isDefault == 1) {
-            val right = textView.context.getDrawable(R.drawable.ic_ok)
-            right?.setBounds(0, 0, right.intrinsicWidth, right.intrinsicHeight)
-            textView.setCompoundDrawables(null, null, right, null)
-        }
+    @BindingAdapter("is_show")
+    fun isShow(view: View, show: Boolean) {
+        view.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    @JvmStatic
+    @BindingAdapter("is_hide")
+    fun isHide(view: View, hide: Boolean) {
+        view.visibility = if (hide) View.GONE else View.VISIBLE
+    }
+
+    @JvmStatic
+    @BindingAdapter("is_invisible")
+    fun isInvisible(view: View, invisible: Boolean) {
+        view.visibility = if (invisible) View.INVISIBLE else View.VISIBLE
     }
 }

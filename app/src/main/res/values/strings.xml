@@ -41,7 +41,7 @@
     <string name="user_add_hint">请输入一个昵称</string>
     <string name="user_change">选择用户</string>
     <string name="user_delete">删除用户</string>
-    <string name="user_auto_change">切换到新用户</string>
+    <string name="user_auto_change">使用新用户登录</string>
 
     <string name="label_add">新增标签</string>
     <string name="label_edit">编辑标签</string>

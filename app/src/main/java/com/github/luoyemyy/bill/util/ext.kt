@@ -7,9 +7,11 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.appcompat.widget.PopupMenu
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.github.luoyemyy.bill.R
 import com.github.luoyemyy.bill.db.Label
 import com.github.luoyemyy.ext.hideKeyboard
+import com.github.luoyemyy.mvp.recycler.RecyclerPresenterSupport
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import java.lang.reflect.Method
@@ -26,6 +28,10 @@ fun formatMoney(money: Double): String {
 
 fun formatMoney2(money: Double): String {
     return DecimalFormat("0.##").format(money)
+}
+
+fun SwipeRefreshLayout.setup(presenter: RecyclerPresenterSupport<*>) {
+    setOnRefreshListener { presenter.loadRefresh() }
 }
 
 fun EditText.setKeyAction(activity: Activity, callback: (String) -> Unit = {}) {
@@ -58,6 +64,14 @@ fun EditText.limitMoney() {
     })
 }
 
+fun EditText.submitEnable(enableView: View) {
+    addTextChangedListener(object : TextChangeAdapter() {
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            enableView.isEnabled = s?.length ?: 0 > 0
+        }
+    })
+}
+
 fun getMethod(obj: Any, name: String, vararg args: Class<*>): Method {
     return obj::class.java.getMethod(name, *args).apply {
         isAccessible = true
@@ -80,16 +94,16 @@ fun PopupMenu.showAnchor(anchor: View, touchX: Int, touchY: Int) {
     getMethod(popup, "show", Int::class.java, Int::class.java).invoke(popup, x, y)
 }
 
-fun chips(chipGroup: ChipGroup, chips: List<Label>?) {
+fun ChipGroup.chips(chips: List<Label>?) {
     if (chips == null || chips.isEmpty()) return
-    chipGroup.removeAllViews()
-    val inflater = LayoutInflater.from(chipGroup.context)
+    removeAllViews()
+    val inflater = LayoutInflater.from(context)
     chips.forEach {
-        val chip = inflater.inflate(R.layout.layout_chip_label, chipGroup, false) as Chip
+        val chip = inflater.inflate(R.layout.layout_chip_label, this, false) as Chip
         chip.text = it.name
         chip.isChecked = it.selected
 
-        chipGroup.addView(chip)
+        addView(chip)
         chip.setOnCheckedChangeListener { _, isChecked ->
             it.selected = isChecked
         }
