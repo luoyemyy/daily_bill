@@ -48,24 +48,29 @@ class FavorFragment : BaseFragment(), BusResult {
             setLinearManager()
             addItemDecoration(RecyclerDecoration.middle(requireContext(), spaceUnit = true))
         }
-        mItemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                return mPresenter.move(viewHolder.adapterPosition, target.adapterPosition)
-            }
+        mItemTouchHelper =
+                ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+                    override fun onMove(
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder,
+                        target: RecyclerView.ViewHolder
+                    ): Boolean {
+                        return mPresenter.move(viewHolder.adapterPosition, target.adapterPosition)
+                    }
 
-            override fun isLongPressDragEnabled(): Boolean {
-                return false
-            }
+                    override fun isLongPressDragEnabled(): Boolean {
+                        return false
+                    }
 
-            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-                super.onSelectedChanged(viewHolder, actionState)
-                if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
-                    mPresenter.saveNewSort()
-                }
-            }
+                    override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                        super.onSelectedChanged(viewHolder, actionState)
+                        if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
+                            mPresenter.saveNewSort()
+                        }
+                    }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
-        })
+                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+                })
         mItemTouchHelper.attachToRecyclerView(mBinding.recyclerView)
 
         Bus.addCallback(lifecycle, this, BusEvent.ADD_FAVOR, BusEvent.EDIT_FAVOR)
@@ -98,7 +103,11 @@ class FavorFragment : BaseFragment(), BusResult {
             binding.executePendingBindings()
         }
 
-        override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): FragmentFavorRecyclerBinding {
+        override fun createContentView(
+            inflater: LayoutInflater,
+            parent: ViewGroup,
+            viewType: Int
+        ): FragmentFavorRecyclerBinding {
             return FragmentFavorRecyclerBinding.inflate(inflater, parent, false)
         }
 
@@ -120,15 +129,13 @@ class FavorFragment : BaseFragment(), BusResult {
                         when (menuItem.itemId) {
                             R.id.edit -> {
                                 val favor = getItem(vh.adapterPosition) ?: return@setOnMenuItemClickListener false
-                                findNavController().navigate(R.id.action_favor_to_favorEditFragment, Bundle().apply {
-                                    putLong("id", favor.id)
-                                })
+                                findNavController().navigate(R.id.action_favor_to_favorEditFragment, Bundle().apply { putLong("id", favor.id) })
                             }
                             R.id.delete -> mPresenter.delete(vh.adapterPosition)
                         }
                         true
                     }
-                    showAnchor(it, (requireActivity() as BaseActivity).touchX, (requireActivity() as BaseActivity).touchY)
+                    showAnchor(it, getTouchX(), getTouchY())
                 }
                 true
             }

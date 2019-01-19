@@ -14,6 +14,9 @@ interface LabelDao {
     @Update
     fun updateAll(labels: List<Label>)
 
+    @Query("update label set show = 1 where id in (:labelIds)")
+    fun updateShowLabel(labelIds:List<Long>)
+
     @Delete
     fun delete(label: Label)
 

@@ -33,13 +33,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:padding="8dp"
             android:background="@drawable/border_r4">
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/layoutChips"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
                 app:chipSpacing="8dp">
 
             </com.google.android.material.chip.ChipGroup>

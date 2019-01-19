@@ -28,5 +28,8 @@ object UserInfo {
         val dao = getUserDao(context)
         dao.deleteDefault()
         dao.updateDefault(userId)
+        dao.get(userId)?.apply {
+            saveUser(context, this)
+        }
     }
 }

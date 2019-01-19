@@ -85,7 +85,10 @@ class MainFragment : BaseFragment(), BusResult {
         }
 
         mBinding.layoutAdd.btnAdd.setOnClickListener {
-            mPresenter.add(mBinding.layoutAdd.layoutMoney.editText?.text?.toString(), mBinding.layoutAdd.layoutDesc.editText?.text?.toString())
+            mPresenter.add(
+                    mBinding.layoutAdd.layoutMoney.editText?.text?.toString(),
+                    mBinding.layoutAdd.layoutDesc.editText?.text?.toString()
+            )
         }
         mBinding.layoutAdd.btnReset.setOnClickListener {
             resetInput()
@@ -118,7 +121,8 @@ class MainFragment : BaseFragment(), BusResult {
         mPresenter.resetLabel()
     }
 
-    inner class Adapter : AbstractSingleRecyclerAdapter<Favor, FragmentMainRecyclerFavorBinding>(mBinding.recyclerView) {
+    inner class Adapter :
+            AbstractSingleRecyclerAdapter<Favor, FragmentMainRecyclerFavorBinding>(mBinding.recyclerView) {
 
         override fun enableLoadMore(): Boolean = false
 
@@ -139,7 +143,11 @@ class MainFragment : BaseFragment(), BusResult {
             mPresenter.add(getItem(vh.adapterPosition))
         }
 
-        override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): FragmentMainRecyclerFavorBinding? {
+        override fun createContentView(
+                inflater: LayoutInflater,
+                parent: ViewGroup,
+                viewType: Int
+        ): FragmentMainRecyclerFavorBinding? {
             return FragmentMainRecyclerFavorBinding.inflate(inflater, parent, false)
         }
     }
@@ -217,9 +225,8 @@ class MainFragment : BaseFragment(), BusResult {
 
         fun getCheckedLabelIds(): List<Long>? = getCheckedLabels()?.map { it.id }
 
-        private fun getCheckedLabels(): List<Label>? {
-            return labelLiveData.value?.filter { it.selected }
-        }
+        private fun getCheckedLabels(): List<Label>? = labelLiveData.value?.filter { it.selected }
+
 
         fun add(money: String?, desc: String?) {
             if (money == null || money.isEmpty()) {
@@ -228,13 +235,12 @@ class MainFragment : BaseFragment(), BusResult {
             }
             runOnWorker {
                 val bill = Bill(userId = UserInfo.getUserId(app), money = money.toDouble(), description = desc, date = System.currentTimeMillis())
-                val rowId = mBillDao.add(bill)
-                val addBill = mBillDao.getByRowId(rowId) ?: return@runOnWorker
+                val addBill = mBillDao.getByRowId(mBillDao.add(bill)) ?: return@runOnWorker
                 getCheckedLabels()?.apply {
                     addBill.description = summary(money.toDouble(), this, desc)
+                    mBillDao.update(addBill)
                     val relations = this.map { LabelRelation(type = 1, relationId = addBill.id, labelId = it.id) }
                     mBillDao.addLabelRelation(relations)
-                    mBillDao.update(addBill)
                 }
                 addLiveData.postValue(true)
                 getCount(true)
@@ -253,12 +259,7 @@ class MainFragment : BaseFragment(), BusResult {
                 copyFavorLabelIds.apply {
                     this.removeAll(selectLabelIds)
                     if (this.isNotEmpty()) {
-                        mLabelDao.getByIds(this).map {
-                            it.show = 1
-                            it
-                        }.apply {
-                            mLabelDao.updateAll(this)
-                        }
+                        mLabelDao.updateShowLabel(this)
                     }
                 }
                 getLabel(true, favorLabelIds)
@@ -273,13 +274,12 @@ class MainFragment : BaseFragment(), BusResult {
             }
             runOnWorker {
                 val bill = Bill(userId = UserInfo.getUserId(app), money = favor.money, description = favor.description, date = System.currentTimeMillis())
-                val rowId = mBillDao.add(bill)
-                val addBill = mBillDao.getByRowId(rowId) ?: return@runOnWorker
+                val addBill = mBillDao.getByRowId(mBillDao.add(bill)) ?: return@runOnWorker
                 mFavorDao.getLabels(favor.id).apply {
                     addBill.description = summary(favor.money, this, favor.description)
                     val relations = this.map { LabelRelation(type = 1, relationId = addBill.id, labelId = it.id) }
-                    mBillDao.addLabelRelation(relations)
                     mBillDao.update(addBill)
+                    mBillDao.addLabelRelation(relations)
                 }
                 getCount(true)
             }

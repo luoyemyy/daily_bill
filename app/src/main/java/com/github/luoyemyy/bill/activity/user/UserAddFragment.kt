@@ -110,9 +110,9 @@ class UserAddFragment : Fragment() {
                 }
                 if (setDefault) {
                     UserInfo.setDefaultUser(app, user.id)
-                    flag.postValue(Flag.SUCCESS)
                     Bus.post(BusEvent.CHANGE_USER)
                 }
+                flag.postValue(Flag.SUCCESS)
                 Bus.post(BusEvent.ADD_USER)
             }
         }

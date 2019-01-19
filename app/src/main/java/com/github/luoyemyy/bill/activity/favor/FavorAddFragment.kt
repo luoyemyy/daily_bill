@@ -33,18 +33,14 @@ class FavorAddFragment : BaseFragment() {
         mPresenter.setFlagObserver(this, Observer {
             findNavController().navigateUp()
         })
-        mPresenter.labelLiveData.observe(this, Observer {
+        mPresenter.setListObserver(this, Observer {
             mBinding.layoutChips.chips(it)
         })
 
         mBinding.apply {
             layoutMoney.editText?.apply {
                 limitMoney()
-                addTextChangedListener(object : TextChangeAdapter() {
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                        btnAdd.isEnabled = s?.length ?: 0 > 0
-                    }
-                })
+                submitEnable(btnAdd)
             }
             layoutDesc.editText?.apply {
                 setKeyAction(requireActivity())
@@ -60,18 +56,16 @@ class FavorAddFragment : BaseFragment() {
         mPresenter.getLabels()
     }
 
-    class Presenter(var app: Application) : AbstractPresenter<Boolean>(app) {
+    class Presenter(var app: Application) : AbstractPresenter<Label>(app) {
 
         private val mFavorDao = getFavorDao(app)
         private val mLabelDap = getLabelDao(app)
 
-        val labelLiveData = MutableLiveData<List<Label>>()
-
-        private fun getCheckedLabels(): List<Label>? = labelLiveData.value?.filter { it.selected }
+        private fun getCheckedLabels(): List<Label>? = list.value?.filter { it.selected }
 
         fun getLabels() {
             runOnWorker {
-                labelLiveData.postValue(mLabelDap.getAll(userId = UserInfo.getUserId(app)))
+                list.postValue(mLabelDap.getAll(userId = UserInfo.getUserId(app)))
             }
         }
 
@@ -85,11 +79,14 @@ class FavorAddFragment : BaseFragment() {
                 val addFavor = mFavorDao.getByRowId(rowId) ?: return@runOnWorker
                 getCheckedLabels()?.apply {
                     addFavor.summary = summary(money.toDouble(), this, desc)
-                    val relations = this.map { LabelRelation(type = 2, relationId = addFavor.id, labelId = it.id) }
-                    mFavorDao.addLabelRelation(relations)
                     mFavorDao.update(listOf(addFavor))
+                    this.map { LabelRelation(type = 2, relationId = addFavor.id, labelId = it.id) }.apply {
+                        if (isNotEmpty()) {
+                            mFavorDao.addLabelRelation(this)
+                        }
+                    }
                 }
-                data.postValue(true)
+                flag.postValue(1)
                 Bus.post(BusEvent.ADD_FAVOR, longValue = addFavor.id)
             }
         }

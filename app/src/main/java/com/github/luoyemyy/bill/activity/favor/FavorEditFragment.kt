@@ -29,7 +29,7 @@ class FavorEditFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
-        mPresenter.resultLiveData.observe(this, Observer {
+        mPresenter.setFlagObserver(this, Observer {
             findNavController().navigateUp()
         })
         mPresenter.labelLiveData.observe(this, Observer {
@@ -45,11 +45,7 @@ class FavorEditFragment : BaseFragment() {
         mBinding.apply {
             layoutMoney.editText?.apply {
                 limitMoney()
-                addTextChangedListener(object : TextChangeAdapter() {
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                        btnAdd.isEnabled = s?.length ?: 0 > 0
-                    }
-                })
+                submitEnable(btnAdd)
             }
             layoutDesc.editText?.apply {
                 setKeyAction(requireActivity())
@@ -70,18 +66,15 @@ class FavorEditFragment : BaseFragment() {
     class Presenter(var app: Application) : AbstractPresenter<Favor>(app) {
 
         private val mFavorDao = getFavorDao(app)
-        private val mLabelDap = getLabelDao(app)
+        private val mLabelDao = getLabelDao(app)
 
         private var mId = 0L
-        private var mLabelRelations: List<LabelRelation>? = null
+        private var mLabels: List<Label>? = null
 
         val labelLiveData = MutableLiveData<List<Label>>()
-        val resultLiveData = MutableLiveData<Boolean>()
 
         override fun load(bundle: Bundle?) {
-            val id = bundle?.getLong("id")?.apply {
-                mId = this
-            } ?: return
+            val id = bundle?.getLong("id")?.apply { mId = this } ?: return
             runOnWorker {
                 data.postValue(getFavorDao(app).get(id))
             }
@@ -89,10 +82,8 @@ class FavorEditFragment : BaseFragment() {
 
         fun getLabels() {
             runOnWorker {
-                val labelIds = mFavorDao.getLabelRelation(mId).apply {
-                    mLabelRelations = this
-                }.map { it.labelId }
-                val labels = mLabelDap.getAll(userId = UserInfo.getUserId(app))
+                val labelIds = mFavorDao.getLabels(mId).apply { mLabels = this }.map { it.id }
+                val labels = mLabelDao.getAll(UserInfo.getUserId(app))
                 labels.forEach {
                     if (labelIds.contains(it.id)) {
                         it.selected = true
@@ -114,35 +105,29 @@ class FavorEditFragment : BaseFragment() {
                 favor.money = money.toDouble()
                 favor.description = desc
 
-                val labelIds = mLabelRelations?.mapTo(mutableSetOf()) { it.labelId } ?: mutableSetOf<Long>()
-                var deleteRelations: Set<Long>? = null
-                var addRelations: List<LabelRelation>? = null
-                getCheckedLabels()?.apply {
+                val oldLabelIds = mLabels?.mapTo(mutableListOf()) { it.id } ?: mutableListOf<Long>()
+                var deleteLabelIds: List<Long>? = null
+                var addLabelIds: List<Long>? = null
+                getCheckedLabels()?.apply labels@{
                     favor.summary = summary(favor.money, this, desc)
-                    val selectLabelIds = this.mapTo(mutableSetOf()) { it.id }
-                    deleteRelations = labelIds.let {
-                        it.removeAll(selectLabelIds)
-                        it
-                    }
-                    addRelations = selectLabelIds.let {
-                        it.removeAll(labelIds)
-                        it.map { id -> LabelRelation(0, 2, mId, id) }
-                    }
+                    addLabelIds = this.mapTo(mutableListOf()) { it.id }.apply { removeAll(oldLabelIds) }
+                    deleteLabelIds = oldLabelIds.apply { removeAll(this@labels.map { it.id }) }
                 } ?: let {
                     favor.summary = summary(favor.money, null, desc)
-                    deleteRelations = labelIds
+                    deleteLabelIds = oldLabelIds
                 }
-                deleteRelations?.apply {
-                    mLabelRelations?.filter { it.labelId in this }?.apply {
-                        mFavorDao.deleteLabelRelation(this)
+
+                deleteLabelIds?.apply {
+                    mFavorDao.deleteLabelRelation(this)
+                }
+                addLabelIds?.apply {
+                    if (isNotEmpty()) {
+                        mFavorDao.addLabelRelation(map { LabelRelation(0, 2, favor.id, it) })
                     }
-                }
-                addRelations?.apply {
-                    mFavorDao.addLabelRelation(this)
                 }
 
                 mFavorDao.update(listOf(favor))
-                resultLiveData.postValue(true)
+                flag.postValue(1)
                 Bus.post(BusEvent.EDIT_FAVOR, longValue = favor.id)
             }
         }
