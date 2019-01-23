@@ -7,17 +7,13 @@ import android.view.*
 import androidx.appcompat.widget.PopupMenu
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.bill.R
-import com.github.luoyemyy.bill.activity.base.BaseActivity
 import com.github.luoyemyy.bill.activity.base.BaseFragment
 import com.github.luoyemyy.bill.databinding.FragmentFavorBinding
 import com.github.luoyemyy.bill.databinding.FragmentFavorRecyclerBinding
 import com.github.luoyemyy.bill.db.Favor
 import com.github.luoyemyy.bill.db.getFavorDao
-import com.github.luoyemyy.bill.util.BusEvent
-import com.github.luoyemyy.bill.util.UserInfo
-import com.github.luoyemyy.bill.util.showAnchor
+import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.bus.BusMsg
 import com.github.luoyemyy.bus.BusResult
@@ -46,34 +42,18 @@ class FavorFragment : BaseFragment(), BusResult {
         mPresenter = getRecyclerPresenter(this, Adapter())
         mBinding.recyclerView.apply {
             setLinearManager()
-            addItemDecoration(RecyclerDecoration.middle(requireContext(), spaceUnit = true))
+            addItemDecoration(RecyclerDecoration.middle(requireContext(), 1, true))
         }
-        mItemTouchHelper =
-                ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
-                    override fun onMove(
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder,
-                        target: RecyclerView.ViewHolder
-                    ): Boolean {
-                        return mPresenter.move(viewHolder.adapterPosition, target.adapterPosition)
-                    }
-
-                    override fun isLongPressDragEnabled(): Boolean {
-                        return false
-                    }
-
-                    override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-                        super.onSelectedChanged(viewHolder, actionState)
-                        if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
-                            mPresenter.saveNewSort()
-                        }
-                    }
-
-                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
-                })
-        mItemTouchHelper.attachToRecyclerView(mBinding.recyclerView)
+        mItemTouchHelper = ItemTouchHelper(object : SortCallback() {
+            override fun move(source: Int, target: Int): Boolean = mPresenter.move(source, target)
+            override fun moveEnd() = mPresenter.saveNewSort()
+        }).apply {
+            attachToRecyclerView(mBinding.recyclerView)
+        }
 
         Bus.addCallback(lifecycle, this, BusEvent.ADD_FAVOR, BusEvent.EDIT_FAVOR)
+
+        mPresenter.loadInit()
     }
 
     override fun busResult(event: String, msg: BusMsg) {
@@ -81,11 +61,6 @@ class FavorFragment : BaseFragment(), BusResult {
             BusEvent.ADD_FAVOR -> mPresenter.addFavor(msg.longValue)
             BusEvent.EDIT_FAVOR -> mPresenter.editFavor(msg.longValue)
         }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        mPresenter.loadInit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -97,7 +72,7 @@ class FavorFragment : BaseFragment(), BusResult {
         return true
     }
 
-    inner class Adapter : AbstractSingleRecyclerAdapter<Favor, FragmentFavorRecyclerBinding>(mBinding.recyclerView) {
+    inner class Adapter : MvpSingleAdapter<Favor, FragmentFavorRecyclerBinding>(mBinding.recyclerView) {
         override fun bindContentViewHolder(binding: FragmentFavorRecyclerBinding, content: Favor, position: Int) {
             binding.entity = content
             binding.executePendingBindings()
@@ -142,7 +117,7 @@ class FavorFragment : BaseFragment(), BusResult {
         }
     }
 
-    class Presenter(var app: Application) : AbstractRecyclerPresenter<Favor>(app) {
+    class Presenter(var app: Application) : MvpRecyclerPresenter<Favor>(app) {
         private val mFavorDao = getFavorDao(app)
         private var mSort = false
 

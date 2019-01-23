@@ -45,7 +45,7 @@ class FavorEditFragment : BaseFragment() {
         mBinding.apply {
             layoutMoney.editText?.apply {
                 limitMoney()
-                submitEnable(btnAdd)
+                enableSubmit(btnAdd)
             }
             layoutDesc.editText?.apply {
                 setKeyAction(requireActivity())
@@ -63,7 +63,7 @@ class FavorEditFragment : BaseFragment() {
         mPresenter.getLabels()
     }
 
-    class Presenter(var app: Application) : AbstractPresenter<Favor>(app) {
+    class Presenter(var app: Application) : MvpSimplePresenter<Favor>(app) {
 
         private val mFavorDao = getFavorDao(app)
         private val mLabelDao = getLabelDao(app)

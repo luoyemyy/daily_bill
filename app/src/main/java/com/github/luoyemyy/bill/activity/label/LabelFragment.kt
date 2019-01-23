@@ -5,19 +5,16 @@ import android.app.Application
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.bill.R
-import com.github.luoyemyy.bill.activity.base.BaseActivity
 import com.github.luoyemyy.bill.activity.base.BaseFragment
 import com.github.luoyemyy.bill.databinding.FragmentLabelBinding
 import com.github.luoyemyy.bill.databinding.FragmentLabelRecyclerBinding
 import com.github.luoyemyy.bill.db.Label
 import com.github.luoyemyy.bill.db.getLabelDao
-import com.github.luoyemyy.bill.util.BusEvent
-import com.github.luoyemyy.bill.util.UserInfo
-import com.github.luoyemyy.bill.util.showAnchor
+import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.bus.BusMsg
 import com.github.luoyemyy.bus.BusResult
@@ -45,33 +42,16 @@ class LabelFragment : BaseFragment(), BusResult {
         mPresenter = getRecyclerPresenter(this, Adapter())
         mBinding.recyclerView.apply {
             setLinearManager()
-            addItemDecoration(RecyclerDecoration.middle(requireContext(), spaceUnit = true))
+            addItemDecoration(RecyclerDecoration.middle(requireContext(), 1, true))
         }
-        mItemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                return mPresenter.move(viewHolder.adapterPosition, target.adapterPosition)
-            }
-
-            override fun isLongPressDragEnabled(): Boolean {
-                return false
-            }
-
-            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-                super.onSelectedChanged(viewHolder, actionState)
-                if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
-                    mPresenter.saveNewSort()
-                }
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
-        })
-        mItemTouchHelper.attachToRecyclerView(mBinding.recyclerView)
+        mItemTouchHelper = ItemTouchHelper(object : SortCallback() {
+            override fun move(source: Int, target: Int): Boolean = mPresenter.move(source, target)
+            override fun moveEnd() = mPresenter.saveNewSort()
+        }).apply {
+            attachToRecyclerView(mBinding.recyclerView)
+        }
 
         Bus.addCallback(lifecycle, this, BusEvent.ADD_LABEL, BusEvent.EDIT_LABEL)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         mPresenter.loadInit()
     }
 
@@ -91,7 +71,7 @@ class LabelFragment : BaseFragment(), BusResult {
         }
     }
 
-    inner class Adapter : AbstractSingleRecyclerAdapter<Label, FragmentLabelRecyclerBinding>(mBinding.recyclerView) {
+    inner class Adapter : MvpSingleAdapter<Label, FragmentLabelRecyclerBinding>(mBinding.recyclerView) {
         override fun bindContentViewHolder(binding: FragmentLabelRecyclerBinding, content: Label, position: Int) {
             binding.apply {
                 entity = content
@@ -107,28 +87,28 @@ class LabelFragment : BaseFragment(), BusResult {
             }
 
             vh.binding?.root?.setOnLongClickListener {
-                PopupMenu(requireContext(), it).apply {
-                    inflate(R.menu.label_update_delete)
-                    setOnMenuItemClickListener { menuItem ->
-                        when (menuItem.itemId) {
-                            R.id.edit -> {
-                                val label = getItem(vh.adapterPosition) ?: return@setOnMenuItemClickListener false
-                                findNavController().navigate(R.id.action_label_to_labelEditFragment, Bundle().apply {
-                                    putLong("id", label.id)
-                                })
-                            }
-                            R.id.delete -> mPresenter.delete(vh.adapterPosition)
-                        }
-                        true
-                    }
-                    showAnchor(it, (requireActivity() as BaseActivity).touchX, (requireActivity() as BaseActivity).touchY)
-                }
-                true
+                itemMenu(it, getItem(vh.adapterPosition))
             }
 
             vh.binding?.switchView?.setOnCheckedChangeListener { _, isChecked ->
                 mPresenter.showHideLabel(vh.adapterPosition, isChecked)
             }
+        }
+
+        private fun itemMenu(view: View, label: Label?): Boolean {
+            if (label == null) return false
+            PopupMenu(requireContext(), view).apply {
+                inflate(R.menu.label_update_delete)
+                setOnMenuItemClickListener { menuItem ->
+                    when (menuItem.itemId) {
+                        R.id.edit -> findNavController().navigate(R.id.action_label_to_labelEditFragment, bundleOf(Pair("id", label.id)))
+                        R.id.delete -> mPresenter.delete(label)
+                    }
+                    true
+                }
+                showAnchor(view, getTouchX(), getTouchY())
+            }
+            return true
         }
 
         override fun enableLoadMore(): Boolean {
@@ -140,7 +120,7 @@ class LabelFragment : BaseFragment(), BusResult {
         }
     }
 
-    class Presenter(var app: Application) : AbstractRecyclerPresenter<Label>(app) {
+    class Presenter(var app: Application) : MvpRecyclerPresenter<Label>(app) {
 
         private val dao = getLabelDao(app)
         private var mSort = false
@@ -167,8 +147,7 @@ class LabelFragment : BaseFragment(), BusResult {
             }
         }
 
-        fun delete(position: Int) {
-            val label = getDataSet().item(position) ?: return
+        fun delete(label: Label) {
             getAdapterSupport()?.apply {
                 getDataSet().remove(listOf(label), getAdapter())
                 runOnWorker {
@@ -187,7 +166,7 @@ class LabelFragment : BaseFragment(), BusResult {
                         getDataSet().addDataAfter(null, listOf(value), getAdapter())
                         mSort = true
                         saveNewSort()
-//                        Bus.post(BusEvent.UPDATE_SHOW_LABEL)
+                        //                        Bus.post(BusEvent.UPDATE_SHOW_LABEL)
                     }
                 }
             }

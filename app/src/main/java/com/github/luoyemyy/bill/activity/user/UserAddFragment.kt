@@ -6,10 +6,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.bill.R
+import com.github.luoyemyy.bill.activity.base.BaseFragment
 import com.github.luoyemyy.bill.activity.main.MainActivity
 import com.github.luoyemyy.bill.databinding.FragmentUserAddBinding
 import com.github.luoyemyy.bill.db.Label
@@ -20,20 +21,17 @@ import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.ext.hide
-import com.github.luoyemyy.mvp.AbstractPresenter
 import com.github.luoyemyy.mvp.Flag
 import com.github.luoyemyy.mvp.getPresenter
 
-class UserAddFragment : Fragment() {
+class UserAddFragment : BaseFragment() {
 
     private lateinit var mBinding: FragmentUserAddBinding
     private lateinit var mPresenter: Presenter
 
     companion object {
         fun newInstanceFromLogin() = UserAddFragment().apply {
-            arguments = Bundle().apply {
-                putBoolean("isLogin", true)
-            }
+            arguments = bundleOf(Pair("isLogin", true))
         }
     }
 
@@ -57,12 +55,10 @@ class UserAddFragment : Fragment() {
         mBinding.apply {
             layoutName.editText?.apply {
                 setKeyAction(requireActivity())
-                submitEnable(btnAdd)
+                enableSubmit(btnAdd)
             }
             btnAdd.setOnClickListener {
-                val name = layoutName.editText?.text?.toString() ?: return@setOnClickListener
-                val setDefault = switchView.isChecked
-                mPresenter.add(name, setDefault)
+                mPresenter.add(layoutName.editText?.text?.toString(), switchView.isChecked)
             }
         }
 
@@ -74,8 +70,7 @@ class UserAddFragment : Fragment() {
         mBinding.layoutChips.chips(mPresenter.getLabels())
     }
 
-
-    class Presenter(var app: Application) : AbstractPresenter<String>(app) {
+    class Presenter(var app: Application) : MvpSimplePresenter<String>(app) {
 
         private var mLabels = app.resources.getStringArray(R.array.suggest_label).mapTo(mutableListOf()) { Label(name = it) }
         private var mIsLogin = false
@@ -100,7 +95,8 @@ class UserAddFragment : Fragment() {
             }
         }
 
-        fun add(name: String, setDefault: Boolean) {
+        fun add(name: String?, setDefault: Boolean) {
+            if (name == null) return
             runOnWorker {
                 val user = mUserDao.getByRowId(mUserDao.add(User(0, name, 0))) ?: return@runOnWorker
                 getSelectedLabels(user.id).apply {

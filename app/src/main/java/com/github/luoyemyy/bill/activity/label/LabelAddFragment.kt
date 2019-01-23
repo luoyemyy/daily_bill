@@ -11,10 +11,7 @@ import com.github.luoyemyy.bill.activity.base.BaseFragment
 import com.github.luoyemyy.bill.databinding.FragmentLabelAddBinding
 import com.github.luoyemyy.bill.db.Label
 import com.github.luoyemyy.bill.db.getLabelDao
-import com.github.luoyemyy.bill.util.BusEvent
-import com.github.luoyemyy.bill.util.TextChangeAdapter
-import com.github.luoyemyy.bill.util.UserInfo
-import com.github.luoyemyy.bill.util.setKeyAction
+import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.mvp.AbstractPresenter
 import com.github.luoyemyy.mvp.getPresenter
@@ -31,35 +28,29 @@ class LabelAddFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
-        mPresenter.setFlagObserver(this, Observer {
-            findNavController().navigateUp()
-        })
+        mPresenter.setFlagObserver(this, Observer { findNavController().navigateUp() })
 
         mBinding.apply {
             layoutName.editText?.apply {
                 setKeyAction(requireActivity())
-                addTextChangedListener(object : TextChangeAdapter() {
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                        btnAdd.isEnabled = s?.length ?: 0 > 0
-                    }
-                })
+                enableSubmit(btnAdd)
             }
             btnAdd.setOnClickListener {
-                val name = layoutName.editText?.text?.toString() ?: return@setOnClickListener
-                mPresenter.add(name)
+                mPresenter.add(layoutName.editText?.text?.toString())
             }
         }
     }
 
-    class Presenter(var app: Application) : AbstractPresenter<Boolean>(app) {
+    class Presenter(var app: Application) : MvpSimplePresenter<Boolean>(app) {
 
-        fun add(name: String) {
+        fun add(name: String?) {
+            if (name == null) return
             single {
                 val label = Label(0, UserInfo.getUserId(app), name, 1, 0)
                 getLabelDao(app).add(label)
             }.result { _, value ->
                 Bus.post(BusEvent.ADD_LABEL, longValue = value ?: 0)
-                data.postValue(true)
+                flag.postValue(1)
             }
         }
     }

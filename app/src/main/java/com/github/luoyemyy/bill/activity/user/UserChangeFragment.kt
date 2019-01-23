@@ -6,7 +6,9 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.bill.R
@@ -15,9 +17,7 @@ import com.github.luoyemyy.bill.databinding.FragmentUserChangeBinding
 import com.github.luoyemyy.bill.databinding.FragmentUserChangeRecyclerBinding
 import com.github.luoyemyy.bill.db.User
 import com.github.luoyemyy.bill.db.getUserDao
-import com.github.luoyemyy.bill.util.BusEvent
-import com.github.luoyemyy.bill.util.UserInfo
-import com.github.luoyemyy.bill.util.setup
+import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.mvp.getRecyclerPresenter
@@ -38,30 +38,33 @@ class UserChangeFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getRecyclerPresenter(this, Adapter())
-        mBinding.recyclerView.setHasFixedSize(true)
-        mBinding.recyclerView.setLinearManager()
-        mBinding.recyclerView.addItemDecoration(RecyclerDecoration.middle(requireContext(), spaceUnit = true))
-        mBinding.swipeRefreshLayout.setup(mPresenter)
         mPresenter.setFlagObserver(this, Observer {
             findNavController().navigateUp()
         })
-
+        mBinding.apply {
+            recyclerView.apply {
+                setHasFixedSize(true)
+                setLinearManager()
+                addItemDecoration(RecyclerDecoration.middle(requireContext(), 1, true))
+            }
+            swipeRefreshLayout.setup(mPresenter)
+        }
         mPresenter.loadInit()
     }
 
-    inner class Adapter : AbstractSingleRecyclerAdapter<User, FragmentUserChangeRecyclerBinding>(mBinding.recyclerView) {
+    inner class Adapter : MvpSingleAdapter<User, FragmentUserChangeRecyclerBinding>(mBinding.recyclerView) {
 
         override fun enableLoadMore(): Boolean {
             return false
         }
 
+        override fun getLayoutId(): Int {
+            return R.layout.fragment_user_change_recycler
+        }
+
         override fun bindContentViewHolder(binding: FragmentUserChangeRecyclerBinding, content: User, position: Int) {
             binding.entity = content
             binding.executePendingBindings()
-        }
-
-        override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): FragmentUserChangeRecyclerBinding {
-            return FragmentUserChangeRecyclerBinding.inflate(inflater, parent, false)
         }
 
         override fun setRefreshState(refreshing: Boolean) {
@@ -74,21 +77,47 @@ class UserChangeFragment : BaseFragment() {
 
         override fun bindItemEvents(vh: VH<FragmentUserChangeRecyclerBinding>) {
             vh.binding?.root?.apply {
-                setOnLongClickListener {
-                    PopupMenu(requireContext(), it, Gravity.CENTER).apply {
-                        inflate(R.menu.user)
-                        setOnMenuItemClickListener {
-                            mPresenter.deleteUser(vh.adapterPosition)
-                            return@setOnMenuItemClickListener true
-                        }
-                    }.show()
-                    return@setOnLongClickListener true
-                }
+                setOnLongClickListener { itemMenu(it, getItem(vh.adapterPosition)) }
             }
+        }
+
+        private fun itemMenu(view: View, user: User?): Boolean {
+            if (user == null) return false
+            PopupMenu(requireContext(), view, Gravity.CENTER).apply {
+                inflate(R.menu.user)
+                setOnMenuItemClickListener {
+                    if (it.itemId == R.id.edit) {
+                        findNavController().navigate(R.id.userEdit, bundleOf(Pair("id", user.id)))
+                    } else if (it.itemId == R.id.delete) {
+                        if (mPresenter.isLoginUser(user)) {
+                            refusedDelete()
+                        } else {
+                            confirmDelete(user)
+                        }
+                    }
+                    return@setOnMenuItemClickListener true
+                }
+            }.showAnchor(view, getTouchX(), getTouchY())
+            return true
+        }
+
+        private fun confirmDelete(user: User) {
+            AlertDialog.Builder(requireContext())
+                .setMessage(R.string.user_delete_confirm)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.sure) { _, _ ->
+                    mPresenter.deleteUser(user)
+                }.show()
+        }
+
+        private fun refusedDelete() {
+            AlertDialog.Builder(requireContext())
+                .setMessage(R.string.user_delete_refused)
+                .setPositiveButton(R.string.know, null).show()
         }
     }
 
-    class Presenter(var app: Application) : AbstractRecyclerPresenter<User>(app) {
+    class Presenter(var app: Application) : MvpRecyclerPresenter<User>(app) {
 
         private val dao = getUserDao(app)
 
@@ -101,8 +130,19 @@ class UserChangeFragment : BaseFragment() {
             }
         }
 
-        fun deleteUser(position: Int) {
+        fun isLoginUser(user: User): Boolean = user.id == UserInfo.getUserId(app)
 
+
+        fun deleteUser(user: User) {
+            if (user.id == UserInfo.getUserId(app)) {
+                return
+            }
+            getAdapterSupport()?.apply {
+                getDataSet().remove(listOf(user), getAdapter())
+            }
+            runOnWorker {
+                dao.delete(user)
+            }
         }
 
         override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<User>? {

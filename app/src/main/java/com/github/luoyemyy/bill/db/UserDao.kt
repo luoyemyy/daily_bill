@@ -1,9 +1,6 @@
 package com.github.luoyemyy.bill.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 
 @Dao
 interface UserDao {
@@ -12,6 +9,9 @@ interface UserDao {
 
     @Update
     fun update(user: User)
+
+    @Delete
+    fun delete(user: User)
 
     @Query("update user set isDefault = 0 where isDefault = 1")
     fun deleteDefault()

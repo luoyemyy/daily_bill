@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.bill.R
@@ -40,7 +39,7 @@ class FavorAddFragment : BaseFragment() {
         mBinding.apply {
             layoutMoney.editText?.apply {
                 limitMoney()
-                submitEnable(btnAdd)
+                enableSubmit(btnAdd)
             }
             layoutDesc.editText?.apply {
                 setKeyAction(requireActivity())
@@ -56,7 +55,7 @@ class FavorAddFragment : BaseFragment() {
         mPresenter.getLabels()
     }
 
-    class Presenter(var app: Application) : AbstractPresenter<Label>(app) {
+    class Presenter(var app: Application) : MvpSimplePresenter<Label>(app) {
 
         private val mFavorDao = getFavorDao(app)
         private val mLabelDap = getLabelDao(app)

@@ -38,7 +38,7 @@ class MainFragment : BaseFragment(), BusResult {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mBinding.recyclerView.apply {
             setLinearManager()
-            addItemDecoration(RecyclerDecoration.middle(requireContext(), spaceUnit = true))
+            addItemDecoration(RecyclerDecoration.middle(requireContext(), 1, true))
         }
         mPresenter = getRecyclerPresenter(this, Adapter())
         mPresenter.labelLiveData.observe(this, androidx.lifecycle.Observer {
@@ -86,8 +86,8 @@ class MainFragment : BaseFragment(), BusResult {
 
         mBinding.layoutAdd.btnAdd.setOnClickListener {
             mPresenter.add(
-                    mBinding.layoutAdd.layoutMoney.editText?.text?.toString(),
-                    mBinding.layoutAdd.layoutDesc.editText?.text?.toString()
+                mBinding.layoutAdd.layoutMoney.editText?.text?.toString(),
+                mBinding.layoutAdd.layoutDesc.editText?.text?.toString()
             )
         }
         mBinding.layoutAdd.btnReset.setOnClickListener {
@@ -121,12 +121,15 @@ class MainFragment : BaseFragment(), BusResult {
         mPresenter.resetLabel()
     }
 
-    inner class Adapter :
-            AbstractSingleRecyclerAdapter<Favor, FragmentMainRecyclerFavorBinding>(mBinding.recyclerView) {
+    inner class Adapter : MvpSingleAdapter<Favor, FragmentMainRecyclerFavorBinding>(mBinding.recyclerView) {
 
         override fun enableLoadMore(): Boolean = false
 
         override fun enableEmpty(): Boolean = false
+
+        override fun getLayoutId(): Int {
+            return R.layout.fragment_main_recycler_favor
+        }
 
         override fun bindContentViewHolder(binding: FragmentMainRecyclerFavorBinding, content: Favor, position: Int) {
             binding.entity = content
@@ -142,17 +145,9 @@ class MainFragment : BaseFragment(), BusResult {
         override fun onItemClickListener(vh: VH<FragmentMainRecyclerFavorBinding>, view: View?) {
             mPresenter.add(getItem(vh.adapterPosition))
         }
-
-        override fun createContentView(
-                inflater: LayoutInflater,
-                parent: ViewGroup,
-                viewType: Int
-        ): FragmentMainRecyclerFavorBinding? {
-            return FragmentMainRecyclerFavorBinding.inflate(inflater, parent, false)
-        }
     }
 
-    class Presenter(var app: Application) : AbstractRecyclerPresenter<Favor>(app) {
+    class Presenter(var app: Application) : MvpRecyclerPresenter<Favor>(app) {
 
         private val mBillDao = getBillDao(app)
         private val mFavorDao = getFavorDao(app)

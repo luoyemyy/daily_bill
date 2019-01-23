@@ -5,19 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.github.luoyemyy.bill.databinding.FragmentAboutBinding
-import com.github.luoyemyy.bill.databinding.FragmentAboutRecyclerBinding
 import com.github.luoyemyy.mvp.getRecyclerPresenter
 import com.github.luoyemyy.mvp.recycler.*
 
-class AboutFragment : Fragment() {
+class MineFragment : Fragment() {
 
     private lateinit var mBinding: FragmentAboutBinding
     private lateinit var mPresenter: Presenter
 
     companion object {
-        fun newInstance() = AboutFragment()
+        fun newInstance() = MineFragment()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -32,19 +32,21 @@ class AboutFragment : Fragment() {
         }
     }
 
-    inner class Adapter : AbstractSingleRecyclerAdapter<String, FragmentAboutRecyclerBinding>(mBinding.recyclerView) {
-        override fun bindContentViewHolder(binding: FragmentAboutRecyclerBinding, content: String, position: Int) {
-            binding.entity = content
-            binding.executePendingBindings()
+    inner class Adapter : AbstractMultiRecyclerAdapter(mBinding.recyclerView) {
+        override fun getContentType(position: Int, item: Any?): Int {
+            return 0
         }
 
-        override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): FragmentAboutRecyclerBinding? {
-            return FragmentAboutRecyclerBinding.inflate(inflater, parent, false)
+        override fun getLayoutId(viewType: Int): Int {
+            return 0
+        }
+
+        override fun bindContentViewHolder(binding: ViewDataBinding, content: Any, position: Int) {
         }
     }
 
-    class Presenter(var app: Application) : AbstractRecyclerPresenter<String>(app) {
-        override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<String>? {
+    class Presenter(var app: Application) : AbstractRecyclerPresenter<Any>(app) {
+        override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<Any>? {
             return null
         }
     }

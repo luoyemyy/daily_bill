@@ -10,13 +10,9 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.bill.databinding.FragmentUserEditBinding
 import com.github.luoyemyy.bill.db.getUserDao
-import com.github.luoyemyy.bill.util.BusEvent
-import com.github.luoyemyy.bill.util.UserInfo
-import com.github.luoyemyy.bill.util.setKeyAction
-import com.github.luoyemyy.bill.util.submitEnable
+import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.config.runOnWorker
-import com.github.luoyemyy.mvp.AbstractPresenter
 import com.github.luoyemyy.mvp.getPresenter
 
 class UserEditFragment : Fragment() {
@@ -37,21 +33,21 @@ class UserEditFragment : Fragment() {
         mBinding.apply {
             layoutName.editText?.apply {
                 setKeyAction(requireActivity())
-                submitEnable(btnAdd)
+                enableSubmit(btnAdd)
             }
             btnAdd.setOnClickListener {
-                val name = layoutName.editText?.text?.toString() ?: return@setOnClickListener
-                mPresenter.edit(name)
+                mPresenter.edit(layoutName.editText?.text?.toString())
             }
         }
         mBinding.name = UserInfo.getUsername(requireContext())
     }
 
-    class Presenter(var app: Application) : AbstractPresenter<Boolean>(app) {
+    class Presenter(var app: Application) : MvpSimplePresenter<Boolean>(app) {
 
         private val dao = getUserDao(app)
 
-        fun edit(name: String) {
+        fun edit(name: String?) {
+            if (name == null) return
             val userId = UserInfo.getUserId(app)
             if (userId == 0L) {
                 return

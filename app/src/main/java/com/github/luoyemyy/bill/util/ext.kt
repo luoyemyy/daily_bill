@@ -64,7 +64,7 @@ fun EditText.limitMoney() {
     })
 }
 
-fun EditText.submitEnable(enableView: View) {
+fun EditText.enableSubmit(enableView: View) {
     addTextChangedListener(object : TextChangeAdapter() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             enableView.isEnabled = s?.length ?: 0 > 0

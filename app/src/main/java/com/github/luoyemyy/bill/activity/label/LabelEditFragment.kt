@@ -13,7 +13,8 @@ import com.github.luoyemyy.bill.databinding.FragmentLabelAddBinding
 import com.github.luoyemyy.bill.db.Label
 import com.github.luoyemyy.bill.db.getLabelDao
 import com.github.luoyemyy.bill.util.BusEvent
-import com.github.luoyemyy.bill.util.TextChangeAdapter
+import com.github.luoyemyy.bill.util.MvpSimplePresenter
+import com.github.luoyemyy.bill.util.enableSubmit
 import com.github.luoyemyy.bill.util.setKeyAction
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.config.runOnWorker
@@ -32,34 +33,23 @@ class LabelEditFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getPresenter()
-        mPresenter.resultLiveData.observe(this, Observer {
-            findNavController().navigateUp()
-        })
-        mPresenter.setDataObserver(this, Observer {
-            mBinding.layoutName.editText?.setText(it.name)
-        })
+        mPresenter.setFlagObserver(this, Observer { findNavController().navigateUp() })
+        mPresenter.setDataObserver(this, Observer { mBinding.layoutName.editText?.setText(it.name) })
 
         mBinding.apply {
             layoutName.editText?.apply {
                 setKeyAction(requireActivity())
-                addTextChangedListener(object : TextChangeAdapter() {
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                        btnAdd.isEnabled = s?.length ?: 0 > 0
-                    }
-                })
+                enableSubmit(btnAdd)
             }
             btnAdd.setOnClickListener {
-                val name = layoutName.editText?.text?.toString() ?: return@setOnClickListener
-                mPresenter.add(name)
+                mPresenter.add(layoutName.editText?.text?.toString())
             }
         }
 
         mPresenter.load(arguments)
     }
 
-    class Presenter(var app: Application) : AbstractPresenter<Label>(app) {
-
-        val resultLiveData = MutableLiveData<Boolean>()
+    class Presenter(var app: Application) : MvpSimplePresenter<Label>(app) {
 
         override fun load(bundle: Bundle?) {
             val id = bundle?.getLong("id") ?: return
@@ -68,14 +58,15 @@ class LabelEditFragment : BaseFragment() {
             }
         }
 
-        fun add(name: String) {
+        fun add(name: String?) {
+            if (name == null) return
             val label = data.value ?: return
             single {
                 label.name = name
                 getLabelDao(app).updateAll(listOf(label))
             }.result { _, _ ->
                 Bus.post(BusEvent.EDIT_LABEL, longValue = label.id)
-                resultLiveData.postValue(true)
+                flag.postValue(1)
             }
         }
     }
