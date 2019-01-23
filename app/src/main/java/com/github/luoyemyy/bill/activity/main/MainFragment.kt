@@ -47,24 +47,21 @@ class MainFragment : BaseFragment(), BusResult {
         mPresenter.countLiveData.observe(this, androidx.lifecycle.Observer {
             mBinding.layoutCount.entity = it
         })
-        mPresenter.addLiveData.observe(this, androidx.lifecycle.Observer {
-            if (it) resetInput()
-        })
-        mPresenter.moneyLiveData.observe(this, androidx.lifecycle.Observer {
-            mBinding.layoutAdd.layoutMoney.editText?.setText(it)
-        })
-        mPresenter.descLiveData.observe(this, androidx.lifecycle.Observer {
-            mBinding.layoutAdd.layoutDesc.editText?.setText(it)
-        })
-        mPresenter.tipLiveData.observe(this, androidx.lifecycle.Observer {
-            //favor tip
-            if (!UserInfo.getFavorTip(requireContext())) {
-                mBinding.layoutFavorTip.root.show()
-                mBinding.layoutFavorTip.btnOk.setOnClickListener {
-                    UserInfo.hideFavorTip(requireContext())
-                    mBinding.layoutFavorTip.root.hide()
+        mPresenter.setFlagObserver(this, androidx.lifecycle.Observer {
+            if (it == 1) mPresenter.resetAdd() else if (it == 2) {
+                if (!UserInfo.getFavorTip(requireContext())) {
+                    mBinding.layoutFavorTip.root.show()
+                    mBinding.layoutFavorTip.btnOk.setOnClickListener {
+                        UserInfo.hideFavorTip(requireContext())
+                        mBinding.layoutFavorTip.root.hide()
+                    }
                 }
             }
+        })
+
+        mPresenter.addLiveData.observe(this, androidx.lifecycle.Observer {
+            mBinding.layoutAdd.layoutMoney.editText?.setText(it.money)
+            mBinding.layoutAdd.layoutDesc.editText?.setText(it.desc)
         })
 
         //add
@@ -91,7 +88,7 @@ class MainFragment : BaseFragment(), BusResult {
             )
         }
         mBinding.layoutAdd.btnReset.setOnClickListener {
-            resetInput()
+            mPresenter.resetAdd()
         }
 
         if (UserInfo.getUserId(requireContext()) == 0L) {
@@ -99,26 +96,24 @@ class MainFragment : BaseFragment(), BusResult {
             startActivity(Intent(requireContext(), LoginActivity::class.java))
             activity?.finish()
         } else {
-            mPresenter.getInput()
-            mPresenter.getCount()
-            mPresenter.getLabel()
+            mPresenter.updateCount()
+            mPresenter.updateAdd()
             mPresenter.loadInit(arguments)
         }
 
-        Bus.addCallback(lifecycle, this, BusEvent.UPDATE_SHOW_LABEL, BusEvent.UPDATE_SHOW_FAVOR)
+        Bus.addCallback(lifecycle, this, BusEvent.UPDATE_SHOW_LABEL, BusEvent.UPDATE_SHOW_FAVOR, BusEvent.CHANGE_USER)
     }
 
     override fun busResult(event: String, msg: BusMsg) {
         when (event) {
-            BusEvent.UPDATE_SHOW_LABEL -> mPresenter.getLabel(true, mPresenter.getCheckedLabelIds())
+            BusEvent.UPDATE_SHOW_LABEL -> mPresenter.updateAdd(true, mPresenter.getCheckedLabelIds())
             BusEvent.UPDATE_SHOW_FAVOR -> mPresenter.loadRefresh()
+            BusEvent.CHANGE_USER -> {
+                mPresenter.updateCount(true)
+                mPresenter.updateAdd(true, null)
+                mPresenter.loadRefresh()
+            }
         }
-    }
-
-    private fun resetInput() {
-        mBinding.layoutAdd.layoutMoney.editText?.setText("")
-        mBinding.layoutAdd.layoutDesc.editText?.setText("")
-        mPresenter.resetLabel()
     }
 
     inner class Adapter : MvpSingleAdapter<Favor, FragmentMainRecyclerFavorBinding>(mBinding.recyclerView) {
@@ -147,35 +142,29 @@ class MainFragment : BaseFragment(), BusResult {
         }
     }
 
+
     class Presenter(var app: Application) : MvpRecyclerPresenter<Favor>(app) {
 
         private val mBillDao = getBillDao(app)
         private val mFavorDao = getFavorDao(app)
         private val mLabelDao = getLabelDao(app)
-        private var mMoney: String? = null
-        private var mDesc: String? = null
+
+        private var mAdd = Add()
+        private var mShowLabels: List<Label>? = null
 
         val labelLiveData = MutableLiveData<List<Label>>()
         val countLiveData = MutableLiveData<Count>()
-        val addLiveData = MutableLiveData<Boolean>()
-        val tipLiveData = MutableLiveData<Boolean>()
-        val moneyLiveData = MutableLiveData<String>()
-        val descLiveData = MutableLiveData<String>()
+        val addLiveData = MutableLiveData<Add>()
 
         fun updateMoney(money: String?) {
-            mMoney = money
+            mAdd.money = money
         }
 
         fun updateDesc(desc: String?) {
-            mDesc = desc
+            mAdd.desc = desc
         }
 
-        fun getInput() {
-            moneyLiveData.postValue(mMoney)
-            descLiveData.postValue(mDesc)
-        }
-
-        fun getCount(reload: Boolean = false) {
+        fun updateCount(reload: Boolean = false) {
             if (isInitialized() && !reload) {
                 countLiveData.postValue(countLiveData.value)
             } else {
@@ -192,35 +181,43 @@ class MainFragment : BaseFragment(), BusResult {
             }
         }
 
-        fun getLabel(reload: Boolean = false, checkedLabelIds: List<Long>? = null) {
+        fun updateAdd(reload: Boolean = false, checkedLabelIds: List<Long>? = null) {
             if (isInitialized() && !reload) {
-                labelLiveData.postValue(labelLiveData.value)
+                addLiveData.postValue(mAdd)
+                labelLiveData.postValue(mShowLabels)
             } else {
                 runOnWorker {
-                    val showLabels = mLabelDao.getShow(UserInfo.getUserId(app))
-                    if (showLabels.isNotEmpty() && checkedLabelIds != null && checkedLabelIds.isNotEmpty()) {
-                        showLabels.forEach {
-                            if (checkedLabelIds.contains(it.id)) {
-                                it.selected = true
+                    mAdd.reset()
+                    addLiveData.postValue(mAdd)
+
+                    mShowLabels = mLabelDao.getShow(UserInfo.getUserId(app)).apply {
+                        if (isNotEmpty() && checkedLabelIds != null && checkedLabelIds.isNotEmpty()) {
+                            forEach {
+                                if (checkedLabelIds.contains(it.id)) {
+                                    it.selected = true
+                                }
                             }
                         }
                     }
-                    labelLiveData.postValue(showLabels)
+                    labelLiveData.postValue(mShowLabels)
                     setInitialized()
                 }
             }
         }
 
-        fun resetLabel() {
-            labelLiveData.value = labelLiveData.value?.map {
+        fun resetAdd() {
+            mAdd.reset()
+            addLiveData.postValue(mAdd)
+
+            mShowLabels?.forEach {
                 it.selected = false
-                it
             }
+            labelLiveData.postValue(mShowLabels)
         }
 
         fun getCheckedLabelIds(): List<Long>? = getCheckedLabels()?.map { it.id }
 
-        private fun getCheckedLabels(): List<Label>? = labelLiveData.value?.filter { it.selected }
+        private fun getCheckedLabels(): List<Label>? = mShowLabels?.filter { it.selected }
 
 
         fun add(money: String?, desc: String?) {
@@ -229,24 +226,23 @@ class MainFragment : BaseFragment(), BusResult {
                 return
             }
             runOnWorker {
-                val bill = Bill(userId = UserInfo.getUserId(app), money = money.toDouble(), description = desc, date = System.currentTimeMillis())
+                val bill = Bill(0, UserInfo.getUserId(app), money.toDouble(), desc, null, System.currentTimeMillis())
                 val addBill = mBillDao.getByRowId(mBillDao.add(bill)) ?: return@runOnWorker
                 getCheckedLabels()?.apply {
-                    addBill.description = summary(money.toDouble(), this, desc)
+                    addBill.description = summary(app, money.toDouble(), this, desc)
                     mBillDao.update(addBill)
                     val relations = this.map { LabelRelation(type = 1, relationId = addBill.id, labelId = it.id) }
                     mBillDao.addLabelRelation(relations)
                 }
-                addLiveData.postValue(true)
-                getCount(true)
+                flag.postValue(1)
+                updateCount(true)
             }
         }
 
         fun selectFavorToAdd(position: Int): Boolean {
             val favor = getDataSet().item(position) ?: return false
-            mMoney = formatMoney2(favor.money)
-            mDesc = favor.description
-            getInput()
+            mAdd.money = formatMoney2(favor.money)
+            mAdd.desc = favor.description
             runOnWorker {
                 val favorLabelIds = mFavorDao.getLabels(favor.id).map { it.id }
                 val copyFavorLabelIds = favorLabelIds.toMutableList()
@@ -257,7 +253,7 @@ class MainFragment : BaseFragment(), BusResult {
                         mLabelDao.updateShowLabel(this)
                     }
                 }
-                getLabel(true, favorLabelIds)
+                updateAdd(true, favorLabelIds)
             }
             return true
         }
@@ -271,12 +267,12 @@ class MainFragment : BaseFragment(), BusResult {
                 val bill = Bill(userId = UserInfo.getUserId(app), money = favor.money, description = favor.description, date = System.currentTimeMillis())
                 val addBill = mBillDao.getByRowId(mBillDao.add(bill)) ?: return@runOnWorker
                 mFavorDao.getLabels(favor.id).apply {
-                    addBill.description = summary(favor.money, this, favor.description)
+                    addBill.description = summary(app, favor.money, this, favor.description)
                     val relations = this.map { LabelRelation(type = 1, relationId = addBill.id, labelId = it.id) }
                     mBillDao.update(addBill)
                     mBillDao.addLabelRelation(relations)
                 }
-                getCount(true)
+                updateCount(true)
             }
         }
 
@@ -287,14 +283,14 @@ class MainFragment : BaseFragment(), BusResult {
         override fun afterLoadInit(ok: Boolean, list: List<Favor>?) {
             super.afterLoadInit(ok, list)
             if (ok && list != null && list.isNotEmpty()) {
-                tipLiveData.postValue(true)
+                flag.postValue(2)
             }
         }
 
         override fun afterLoadRefresh(ok: Boolean, list: List<Favor>?) {
             super.afterLoadRefresh(ok, list)
             if (ok && list != null && list.isNotEmpty()) {
-                tipLiveData.postValue(true)
+                flag.postValue(2)
             }
         }
 

@@ -16,7 +16,6 @@ import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.ext.toast
-import com.github.luoyemyy.mvp.AbstractPresenter
 import com.github.luoyemyy.mvp.getPresenter
 
 class FavorEditFragment : BaseFragment() {
@@ -109,16 +108,16 @@ class FavorEditFragment : BaseFragment() {
                 var deleteLabelIds: List<Long>? = null
                 var addLabelIds: List<Long>? = null
                 getCheckedLabels()?.apply labels@{
-                    favor.summary = summary(favor.money, this, desc)
+                    favor.summary = summary(app, favor.money, this, desc)
                     addLabelIds = this.mapTo(mutableListOf()) { it.id }.apply { removeAll(oldLabelIds) }
                     deleteLabelIds = oldLabelIds.apply { removeAll(this@labels.map { it.id }) }
                 } ?: let {
-                    favor.summary = summary(favor.money, null, desc)
+                    favor.summary = summary(app, favor.money, null, desc)
                     deleteLabelIds = oldLabelIds
                 }
 
                 deleteLabelIds?.apply {
-                    mFavorDao.deleteLabelRelation(this)
+                    mFavorDao.deleteLabelRelation(favor.id, this)
                 }
                 addLabelIds?.apply {
                     if (isNotEmpty()) {

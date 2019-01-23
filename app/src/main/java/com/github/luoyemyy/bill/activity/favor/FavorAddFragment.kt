@@ -77,7 +77,7 @@ class FavorAddFragment : BaseFragment() {
                 val rowId = mFavorDao.add(Favor(0, UserInfo.getUserId(app), money.toDouble(), desc))
                 val addFavor = mFavorDao.getByRowId(rowId) ?: return@runOnWorker
                 getCheckedLabels()?.apply {
-                    addFavor.summary = summary(money.toDouble(), this, desc)
+                    addFavor.summary = summary(app,money.toDouble(), this, desc)
                     mFavorDao.update(listOf(addFavor))
                     this.map { LabelRelation(type = 2, relationId = addFavor.id, labelId = it.id) }.apply {
                         if (isNotEmpty()) {

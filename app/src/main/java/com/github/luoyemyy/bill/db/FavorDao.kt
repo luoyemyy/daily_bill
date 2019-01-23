@@ -17,8 +17,8 @@ interface FavorDao {
     @Delete
     fun delete(favor: Favor)
 
-    @Query("delete from labelrelation where labelId in (:labelIds)")
-    fun deleteLabelRelation(labelIds: List<Long>)
+    @Query("delete from labelrelation where relationId = :favorId and type = 2 and labelId in (:labelIds)")
+    fun deleteLabelRelation(favorId:Long,labelIds: List<Long>)
 
     @Query("select l.* from labelrelation ll left join label l on ll.labelId=l.id where ll.relationId = :favorId")
     fun getLabels(favorId: Long): List<Label>

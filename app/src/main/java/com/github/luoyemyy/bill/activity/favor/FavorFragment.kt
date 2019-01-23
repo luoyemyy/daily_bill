@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.github.luoyemyy.bill.R
@@ -40,6 +41,7 @@ class FavorFragment : BaseFragment(), BusResult {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mPresenter = getRecyclerPresenter(this, Adapter())
+        mPresenter.setFlagObserver(this, Observer { mBinding.recyclerView.scrollToPosition(0) })
         mBinding.recyclerView.apply {
             setLinearManager()
             addItemDecoration(RecyclerDecoration.middle(requireContext(), 1, true))
@@ -152,6 +154,7 @@ class FavorFragment : BaseFragment(), BusResult {
                         getDataSet().addDataAfter(null, listOf(value), getAdapter())
                         mSort = true
                         saveNewSort()
+                        flag.postValue(1)
                         //                        Bus.post(BusEvent.UPDATE_SHOW_FAVOR)
                     }
                 }

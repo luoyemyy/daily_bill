@@ -1,12 +1,15 @@
 package com.github.luoyemyy.bill.util
 
 import android.app.Activity
+import android.content.Context
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.forEachIndexed
+import androidx.core.view.plusAssign
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.github.luoyemyy.bill.R
 import com.github.luoyemyy.bill.db.Label
@@ -16,10 +19,11 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import java.lang.reflect.Method
 import java.text.DecimalFormat
+import kotlin.math.abs
 
-fun summary(money: Double, labels: List<Label>?, desc: String?): String {
-    val join = labels?.joinToString("-") { it.name ?: " " }
-    return formatMoney2(money) + (if (join.isNullOrEmpty()) "" else "-$join") + (if (desc.isNullOrEmpty()) "" else "-$desc")
+fun summary(context: Context, money: Double, labels: List<Label>?, desc: String?): String {
+    val join = labels?.mapTo(mutableListOf()) { it.name }?.apply { add(desc) }?.filter { !it.isNullOrEmpty() }?.joinToString("-")
+    return context.getString(R.string.money_unit) + formatMoney(money) + (if (join.isNullOrEmpty()) "" else "：$join")
 }
 
 fun formatMoney(money: Double): String {
@@ -95,17 +99,27 @@ fun PopupMenu.showAnchor(anchor: View, touchX: Int, touchY: Int) {
 }
 
 fun ChipGroup.chips(chips: List<Label>?) {
-    if (chips == null || chips.isEmpty()) return
-    removeAllViews()
-    val inflater = LayoutInflater.from(context)
-    chips.forEach {
-        val chip = inflater.inflate(R.layout.layout_chip_label, this, false) as Chip
-        chip.text = it.name
-        chip.isChecked = it.selected
-
-        addView(chip)
-        chip.setOnCheckedChangeListener { _, isChecked ->
-            it.selected = isChecked
+    if (chips == null || chips.isEmpty()) {
+        removeAllViews()
+    } else {
+        val i = chips.size - childCount
+        if (i > 0) {
+            val inflater = LayoutInflater.from(context)
+            for (x in 0 until i) {
+                this += inflater.inflate(R.layout.layout_chip_label, this, false)
+            }
+        } else if (i < 0) {
+            removeViews(0, abs(i))
+        }
+        forEachIndexed { index, view ->
+            val chip = chips[index]
+            (view as? Chip)?.apply {
+                text = chip.name
+                isChecked = chip.selected
+                setOnCheckedChangeListener { _, isChecked ->
+                    chip.selected = isChecked
+                }
+            }
         }
     }
 }

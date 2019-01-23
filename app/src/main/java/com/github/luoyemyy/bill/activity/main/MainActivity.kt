@@ -36,7 +36,7 @@ class MainActivity : BaseActivity(), BusResult {
         }
 
         mTxtName.text = UserInfo.getUsername(this)
-        Bus.addCallback(lifecycle, this, BusEvent.UPDATE_USER)
+        Bus.addCallback(lifecycle, this, BusEvent.CHANGE_USER)
     }
 
     override fun onBackPressed() {
