@@ -58,7 +58,7 @@ class UserEditFragment : Fragment() {
                     user.nickname = name
                     dao.update(user)
                     UserInfo.saveUser(app, user)
-                    data.postValue(true)
+                    flag.postValue(1)
                     Bus.post(BusEvent.UPDATE_USER)
                 }
             }
