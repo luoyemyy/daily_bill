@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.bill.R
 import com.github.luoyemyy.bill.activity.base.BaseFragment
 import com.github.luoyemyy.bill.activity.login.LoginActivity
@@ -38,6 +39,7 @@ class MainFragment : BaseFragment(), BusResult {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mBinding.recyclerView.apply {
             setLinearManager()
+            setHasFixedSize(true)
             addItemDecoration(RecyclerDecoration.middle(requireContext(), 1, true))
         }
         mPresenter = getRecyclerPresenter(this, Adapter())
@@ -64,6 +66,14 @@ class MainFragment : BaseFragment(), BusResult {
             mBinding.layoutAdd.layoutDesc.editText?.setText(it.desc)
         })
 
+        //count
+        mBinding.layoutCount.viewDay.setOnClickListener {
+            findNavController().navigate(R.id.bill)
+        }
+        mBinding.layoutCount.viewMonth.setOnClickListener {
+            findNavController().navigate(R.id.bill)
+        }
+
         //add
         mBinding.layoutAdd.layoutMoney.editText?.apply {
             limitMoney()
@@ -80,6 +90,7 @@ class MainFragment : BaseFragment(), BusResult {
                 }
             })
         }
+
 
         mBinding.layoutAdd.btnAdd.setOnClickListener {
             mPresenter.add(

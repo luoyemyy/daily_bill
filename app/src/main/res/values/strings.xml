@@ -56,4 +56,9 @@
     <string name="favor_edit">编辑常用支出</string>
     <string name="favor_delete">删除常用支出</string>
 
+    <string name="bill_type_week">本周</string>
+    <string name="bill_type_month">本月</string>
+    <string name="bill_type_year">本年</string>
+    <string name="bill_type_custom">自定义</string>
+
 </resources>

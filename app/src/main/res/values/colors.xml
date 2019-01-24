@@ -17,6 +17,6 @@
     <color name="icon_tint">#80000000</color>
 
     <color name="border">#65000000</color>
-    <color name="ripple_color">#08C161</color>
+    <color name="ripple_color">#cccccc</color>
     <color name="translucence">#80000000</color>
 </resources>

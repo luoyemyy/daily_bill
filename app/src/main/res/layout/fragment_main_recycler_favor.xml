@@ -10,16 +10,25 @@
     </data>
 
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:background="@drawable/ripple_item"
-        android:ellipsize="end"
-        android:lines="1"
-        android:padding="16dp"
-        android:text="@{entity.summary}"
-        android:textColor="@color/text_content"
-        android:textSize="16sp"
-        tools:text="12元-早餐" />
+        android:elevation="1dp"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="@{entity.summary}"
+            android:textColor="@color/text_content"
+            android:textSize="16sp"
+            tools:text="￥12.00：早餐" />
+
+    </LinearLayout>
 
 </layout>
