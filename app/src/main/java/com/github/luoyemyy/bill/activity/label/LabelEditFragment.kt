@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.github.luoyemyy.bill.activity.base.BaseFragment
@@ -17,11 +16,9 @@ import com.github.luoyemyy.bill.util.MvpSimplePresenter
 import com.github.luoyemyy.bill.util.enableSubmit
 import com.github.luoyemyy.bill.util.setKeyAction
 import com.github.luoyemyy.bus.Bus
-import com.github.luoyemyy.config.runOnWorker
-import com.github.luoyemyy.mvp.AbstractPresenter
 import com.github.luoyemyy.mvp.getPresenter
-import com.github.luoyemyy.mvp.result
-import com.github.luoyemyy.mvp.single
+import com.github.luoyemyy.mvp.recycler.LoadType
+import com.github.luoyemyy.mvp.runOnWorker
 
 class LabelEditFragment : BaseFragment() {
     private lateinit var mBinding: FragmentLabelAddBinding
@@ -46,25 +43,22 @@ class LabelEditFragment : BaseFragment() {
             }
         }
 
-        mPresenter.load(arguments)
+        mPresenter.loadInit(arguments)
     }
 
     class Presenter(var app: Application) : MvpSimplePresenter<Label>(app) {
 
-        override fun load(bundle: Bundle?) {
+        override fun loadData(loadType: LoadType, bundle: Bundle?) {
             val id = bundle?.getLong("id") ?: return
-            runOnWorker {
-                data.postValue(getLabelDao(app).get(id))
-            }
+            data.postValue(getLabelDao(app).get(id))
         }
 
         fun add(name: String?) {
             if (name == null) return
             val label = data.value ?: return
-            single {
+            runOnWorker {
                 label.name = name
                 getLabelDao(app).updateAll(listOf(label))
-            }.result { _, _ ->
                 Bus.post(BusEvent.EDIT_LABEL, longValue = label.id)
                 flag.postValue(1)
             }

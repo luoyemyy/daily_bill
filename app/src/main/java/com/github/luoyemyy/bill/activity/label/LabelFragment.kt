@@ -19,21 +19,16 @@ import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.bus.BusMsg
 import com.github.luoyemyy.bus.BusResult
-import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.mvp.getRecyclerPresenter
 import com.github.luoyemyy.mvp.recycler.*
 import com.github.luoyemyy.mvp.result
+import com.github.luoyemyy.mvp.runOnWorker
 import com.github.luoyemyy.mvp.single
 
 class LabelFragment : BaseFragment(), BusResult {
     private lateinit var mBinding: FragmentLabelBinding
     private lateinit var mPresenter: Presenter
     private lateinit var mItemTouchHelper: ItemTouchHelper
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return FragmentLabelBinding.inflate(inflater, container, false).apply { mBinding = this }.root
@@ -44,7 +39,7 @@ class LabelFragment : BaseFragment(), BusResult {
         mPresenter.setFlagObserver(this, Observer { mBinding.recyclerView.scrollToPosition(0) })
         mBinding.recyclerView.apply {
             setLinearManager()
-            addItemDecoration(RecyclerDecoration.middle(requireContext(), 1, true))
+            addItemDecoration(LinearDecoration.middle(requireContext(), 1, true))
         }
         mItemTouchHelper = ItemTouchHelper(object : SortCallback() {
             override fun move(source: Int, target: Int): Boolean = mPresenter.move(source, target)
@@ -58,7 +53,7 @@ class LabelFragment : BaseFragment(), BusResult {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.label_add, menu)
+        inflater?.inflate(R.menu.add, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -100,7 +95,7 @@ class LabelFragment : BaseFragment(), BusResult {
         private fun itemMenu(view: View, label: Label?): Boolean {
             if (label == null) return false
             PopupMenu(requireContext(), view).apply {
-                inflate(R.menu.label_update_delete)
+                inflate(R.menu.edit_delete)
                 setOnMenuItemClickListener { menuItem ->
                     when (menuItem.itemId) {
                         R.id.edit -> findNavController().navigate(R.id.action_label_to_labelEditFragment, bundleOf(Pair("id", label.id)))

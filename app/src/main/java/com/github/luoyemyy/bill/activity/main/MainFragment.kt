@@ -18,13 +18,13 @@ import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.bus.BusMsg
 import com.github.luoyemyy.bus.BusResult
-import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.ext.clearTime
 import com.github.luoyemyy.ext.hide
 import com.github.luoyemyy.ext.show
 import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.mvp.getRecyclerPresenter
 import com.github.luoyemyy.mvp.recycler.*
+import com.github.luoyemyy.mvp.runOnWorker
 import java.util.*
 
 class MainFragment : BaseFragment(), BusResult {
@@ -40,7 +40,7 @@ class MainFragment : BaseFragment(), BusResult {
         mBinding.recyclerView.apply {
             setLinearManager()
             setHasFixedSize(true)
-            addItemDecoration(RecyclerDecoration.middle(requireContext(), 1, true))
+            addItemDecoration(LinearDecoration.middle(requireContext(), 1, true))
         }
         mPresenter = getRecyclerPresenter(this, Adapter())
         mPresenter.labelLiveData.observe(this, androidx.lifecycle.Observer {
@@ -166,6 +166,8 @@ class MainFragment : BaseFragment(), BusResult {
         val labelLiveData = MutableLiveData<List<Label>>()
         val countLiveData = MutableLiveData<Count>()
         val addLiveData = MutableLiveData<Add>()
+
+        override fun delayInitTime(): Long = 0L
 
         fun updateMoney(money: String?) {
             mAdd.money = money

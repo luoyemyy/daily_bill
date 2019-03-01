@@ -5,9 +5,9 @@ object BusEvent {
     /**
      * user
      */
-    const val ADD_USER = "ADD_USER"
+    const val ADD_USER = "add_user"
     const val UPDATE_USER = "update_user"
-    const val CHANGE_USER = "change_user"
+    const val CHANGE_USER = "change_user@REPLACE"
 
     /**
      * label

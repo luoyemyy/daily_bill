@@ -18,22 +18,17 @@ import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
 import com.github.luoyemyy.bus.BusMsg
 import com.github.luoyemyy.bus.BusResult
-import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.mvp.getRecyclerPresenter
 import com.github.luoyemyy.mvp.recycler.*
 import com.github.luoyemyy.mvp.result
+import com.github.luoyemyy.mvp.runOnWorker
 import com.github.luoyemyy.mvp.single
 
 class FavorFragment : BaseFragment(), BusResult {
 
     private lateinit var mBinding: FragmentFavorBinding
     private lateinit var mPresenter: Presenter
-    private lateinit var mItemTouchHelper: ItemTouchHelper
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+    private lateinit var mSortHelper: ItemTouchHelper
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return FragmentFavorBinding.inflate(inflater, container, false).apply { mBinding = this }.root
@@ -44,9 +39,9 @@ class FavorFragment : BaseFragment(), BusResult {
         mPresenter.setFlagObserver(this, Observer { mBinding.recyclerView.scrollToPosition(0) })
         mBinding.recyclerView.apply {
             setLinearManager()
-            addItemDecoration(RecyclerDecoration.middle(requireContext(), 1, true))
+            addItemDecoration(LinearDecoration.middle(requireContext(), 1, true))
         }
-        mItemTouchHelper = ItemTouchHelper(object : SortCallback() {
+        mSortHelper = ItemTouchHelper(object : SortCallback() {
             override fun move(source: Int, target: Int): Boolean = mPresenter.move(source, target)
             override fun moveEnd() = mPresenter.saveNewSort()
         }).apply {
@@ -66,7 +61,7 @@ class FavorFragment : BaseFragment(), BusResult {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.favor_add, menu)
+        inflater?.inflate(R.menu.add, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -95,13 +90,18 @@ class FavorFragment : BaseFragment(), BusResult {
         @SuppressLint("ClickableViewAccessibility")
         override fun bindItemEvents(vh: VH<FragmentFavorRecyclerBinding>) {
             vh.binding?.imgSort?.setOnTouchListener { _, _ ->
-                mItemTouchHelper.startDrag(vh)
+                mSortHelper.startDrag(vh)
                 true
             }
 
+//            vh.binding?.txtName?.setOnTouchListener { _, _ ->
+//                mSortHelper.startSwipe(vh)
+//                true
+//            }
+
             vh.binding?.root?.setOnLongClickListener {
                 PopupMenu(requireContext(), it).apply {
-                    inflate(R.menu.favor_update_delete)
+                    inflate(R.menu.edit_delete)
                     setOnMenuItemClickListener { menuItem ->
                         when (menuItem.itemId) {
                             R.id.edit -> {

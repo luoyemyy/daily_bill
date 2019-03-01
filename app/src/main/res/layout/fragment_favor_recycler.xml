@@ -3,16 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="entity"
             type="com.github.luoyemyy.bill.db.Favor" />
     </data>
 
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="56dp"-->
+    <!--android:orientation="horizontal">-->
+
     <LinearLayout
+        android:id="@+id/layoutContent"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:elevation="1dp"
         android:background="@color/white"
+        android:elevation="1dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -26,14 +34,53 @@
             android:src="@drawable/ic_sort" />
 
         <TextView
+            android:id="@+id/txtName"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
+            android:gravity="center_vertical"
             android:text="@{entity.summary}"
             android:textColor="@color/text_content"
             android:textSize="15sp"
             tools:text="12-早餐" />
 
+        <Switch
+            android:id="@+id/switchView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:checked="@{entity.show==1}"
+            android:padding="12dp"
+            tools:checked="true" />
+
     </LinearLayout>
+
+    <!--<LinearLayout-->
+    <!--android:id="@+id/layoutMenu"-->
+    <!--android:layout_width="96dp"-->
+    <!--android:layout_height="56dp"-->
+    <!--android:background="@color/white"-->
+    <!--android:gravity="center_vertical"-->
+    <!--android:orientation="horizontal"-->
+    <!--tools:translationX="-96dp">-->
+
+    <!--<ImageView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginStart="8dp"-->
+    <!--android:padding="8dp"-->
+    <!--android:src="@drawable/ic_edit"-->
+    <!--android:tint="@color/black" />-->
+
+    <!--<ImageView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginEnd="8dp"-->
+    <!--android:padding="8dp"-->
+    <!--android:src="@drawable/ic_delete"-->
+    <!--android:tint="@color/black" />-->
+    <!--</LinearLayout>-->
+    <!--</LinearLayout>-->
 
 </layout>

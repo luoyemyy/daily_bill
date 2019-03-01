@@ -13,10 +13,10 @@ import com.github.luoyemyy.bill.databinding.FragmentFavorAddBinding
 import com.github.luoyemyy.bill.db.*
 import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
-import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.ext.toast
-import com.github.luoyemyy.mvp.AbstractPresenter
 import com.github.luoyemyy.mvp.getPresenter
+import com.github.luoyemyy.mvp.recycler.LoadType
+import com.github.luoyemyy.mvp.runOnWorker
 
 class FavorAddFragment : BaseFragment() {
 
@@ -52,20 +52,20 @@ class FavorAddFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        mPresenter.getLabels()
+        mPresenter.loadInit()
     }
 
     class Presenter(var app: Application) : MvpSimplePresenter<Label>(app) {
 
         private val mFavorDao = getFavorDao(app)
-        private val mLabelDap = getLabelDao(app)
+        private val mLabelDao = getLabelDao(app)
+        private var mLabels: List<Label>? = null
 
-        private fun getCheckedLabels(): List<Label>? = list.value?.filter { it.selected }
+        private fun getCheckedLabels(): List<Label>? = mLabels?.filter { it.selected }
 
-        fun getLabels() {
-            runOnWorker {
-                list.postValue(mLabelDap.getAll(userId = UserInfo.getUserId(app)))
-            }
+        override fun loadData(loadType: LoadType, bundle: Bundle?) {
+            mLabels = mLabelDao.getAll(userId = UserInfo.getUserId(app))
+            list.postValue(mLabels)
         }
 
         fun add(money: String?, desc: String?) {
@@ -74,10 +74,10 @@ class FavorAddFragment : BaseFragment() {
                 return
             }
             runOnWorker {
-                val rowId = mFavorDao.add(Favor(0, UserInfo.getUserId(app), money.toDouble(), desc))
+                val rowId = mFavorDao.add(Favor(0, UserInfo.getUserId(app), money.toDouble(), desc, null, 1))
                 val addFavor = mFavorDao.getByRowId(rowId) ?: return@runOnWorker
                 getCheckedLabels()?.apply {
-                    addFavor.summary = summary(app,money.toDouble(), this, desc)
+                    addFavor.summary = summary(app, money.toDouble(), this, desc)
                     mFavorDao.update(listOf(addFavor))
                     this.map { LabelRelation(type = 2, relationId = addFavor.id, labelId = it.id) }.apply {
                         if (isNotEmpty()) {

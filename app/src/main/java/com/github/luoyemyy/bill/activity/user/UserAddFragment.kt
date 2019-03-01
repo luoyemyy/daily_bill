@@ -19,10 +19,10 @@ import com.github.luoyemyy.bill.db.getLabelDao
 import com.github.luoyemyy.bill.db.getUserDao
 import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
-import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.ext.hide
 import com.github.luoyemyy.mvp.Flag
 import com.github.luoyemyy.mvp.getPresenter
+import com.github.luoyemyy.mvp.runOnWorker
 
 class UserAddFragment : BaseFragment() {
 
@@ -73,13 +73,11 @@ class UserAddFragment : BaseFragment() {
     class Presenter(var app: Application) : MvpSimplePresenter<String>(app) {
 
         private var mLabels = app.resources.getStringArray(R.array.suggest_label).mapTo(mutableListOf()) { Label(name = it) }
-        private var mIsLogin = false
         private val mUserDao = getUserDao(app)
         private val mLabelDao = getLabelDao(app)
 
         fun isLogin(bundle: Bundle?): Boolean {
-            mIsLogin = bundle?.getBoolean("isLogin") == true
-            return mIsLogin
+            return bundle?.getBoolean("isLogin") == true
         }
 
         fun getLabels(): List<Label> {

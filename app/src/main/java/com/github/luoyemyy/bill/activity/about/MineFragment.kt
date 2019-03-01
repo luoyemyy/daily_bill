@@ -28,7 +28,7 @@ class MineFragment : Fragment() {
         mPresenter = getRecyclerPresenter(this, Adapter())
         mBinding.recyclerView.apply {
             setLinearManager()
-            addItemDecoration(RecyclerDecoration.middle(requireContext(), 1, true))
+            addItemDecoration(LinearDecoration.middle(requireContext(), 1, true))
         }
     }
 

@@ -13,10 +13,8 @@ import com.github.luoyemyy.bill.db.Label
 import com.github.luoyemyy.bill.db.getLabelDao
 import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
-import com.github.luoyemyy.mvp.AbstractPresenter
 import com.github.luoyemyy.mvp.getPresenter
-import com.github.luoyemyy.mvp.result
-import com.github.luoyemyy.mvp.single
+import com.github.luoyemyy.mvp.runOnWorker
 
 class LabelAddFragment : BaseFragment() {
     private lateinit var mBinding: FragmentLabelAddBinding
@@ -45,11 +43,9 @@ class LabelAddFragment : BaseFragment() {
 
         fun add(name: String?) {
             if (name == null) return
-            single {
+            runOnWorker {
                 val label = Label(0, UserInfo.getUserId(app), name, 1, 0)
-                getLabelDao(app).add(label)
-            }.result { _, value ->
-                Bus.post(BusEvent.ADD_LABEL, longValue = value ?: 0)
+                Bus.post(BusEvent.ADD_LABEL, longValue = getLabelDao(app).add(label))
                 flag.postValue(1)
             }
         }

@@ -19,9 +19,11 @@ import com.github.luoyemyy.bill.db.User
 import com.github.luoyemyy.bill.db.getUserDao
 import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
-import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.mvp.getRecyclerPresenter
-import com.github.luoyemyy.mvp.recycler.*
+import com.github.luoyemyy.mvp.recycler.LoadType
+import com.github.luoyemyy.mvp.recycler.Paging
+import com.github.luoyemyy.mvp.recycler.VH
+import com.github.luoyemyy.mvp.runOnWorker
 
 class UserChangeFragment : BaseFragment() {
 
@@ -42,11 +44,7 @@ class UserChangeFragment : BaseFragment() {
             findNavController().navigateUp()
         })
         mBinding.apply {
-            recyclerView.apply {
-                setHasFixedSize(true)
-                setLinearManager()
-                addItemDecoration(RecyclerDecoration.middle(requireContext(), 1, true))
-            }
+            recyclerView.setup(hasFixed = true)
             swipeRefreshLayout.setup(mPresenter)
         }
         mPresenter.loadInit()
@@ -84,7 +82,7 @@ class UserChangeFragment : BaseFragment() {
         private fun itemMenu(view: View, user: User?): Boolean {
             if (user == null) return false
             PopupMenu(requireContext(), view, Gravity.CENTER).apply {
-                inflate(R.menu.user)
+                inflate(R.menu.edit_delete)
                 setOnMenuItemClickListener {
                     if (it.itemId == R.id.edit) {
                         findNavController().navigate(R.id.userEdit, bundleOf(Pair("id", user.id)))

@@ -31,7 +31,7 @@ class App : Application() {
 
         registerReceiver(object :BroadcastReceiver(){
             override fun onReceive(context: Context?, intent: Intent?) {
-                Log.e("App", "onReceive:  locale change ${LocaleList.getDefault()}")
+//                Log.e("App", "onReceive:  locale change ${LocaleList.getDefault()}")
             }
         }, IntentFilter(Intent.ACTION_LOCALE_CHANGED))
     }

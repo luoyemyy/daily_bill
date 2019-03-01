@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:hint="@string/label_add_hint"
+            android:hint="@string/label_name_hint"
             app:counterEnabled="true"
             app:counterMaxLength="10">
 
@@ -36,6 +36,10 @@
             android:layout_height="wrap_content"
             android:enabled="false"
             android:text="@string/sure" />
+
+        <DatePicker
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"></DatePicker>
     </LinearLayout>
 
 </layout>

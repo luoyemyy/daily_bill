@@ -2,12 +2,15 @@
     <string name="app_name">每日支出</string>
 
     <string name="sure">确认</string>
-    <string name="cancel">确认</string>
+    <string name="cancel">取消</string>
     <string name="know">知道了</string>
     <string name="account">金额</string>
     <string name="desc">描述</string>
     <string name="label">标签</string>
     <string name="money_unit">￥</string>
+    <string name="add">新增</string>
+    <string name="edit">编辑</string>
+    <string name="delete">删除</string>
 
     <string-array name="suggest_label">
         <item>早餐</item>
@@ -42,23 +45,20 @@
     <string name="user_edit">编辑用户</string>
     <string name="user_add_hint">请输入一个昵称</string>
     <string name="user_change">选择用户</string>
-    <string name="user_delete">删除用户</string>
     <string name="user_delete_confirm">确认删除此用户？</string>
     <string name="user_delete_refused">此用户为登录用户，不能删除</string>
     <string name="user_auto_change">使用新用户登录</string>
 
     <string name="label_add">新增标签</string>
     <string name="label_edit">编辑标签</string>
-    <string name="label_delete">删除标签</string>
-    <string name="label_add_hint">请输入标签名称</string>
+    <string name="label_name_hint">请输入标签名称</string>
 
     <string name="favor_add">新增常用支出</string>
     <string name="favor_edit">编辑常用支出</string>
-    <string name="favor_delete">删除常用支出</string>
 
-    <string name="bill_type_week">本周</string>
-    <string name="bill_type_month">本月</string>
-    <string name="bill_type_year">本年</string>
-    <string name="bill_type_custom">自定义</string>
+    <string name="bill_type_day">日</string>
+    <string name="bill_type_week">周</string>
+    <string name="bill_type_month">月</string>
+    <string name="bill_type_year">年</string>
 
 </resources>

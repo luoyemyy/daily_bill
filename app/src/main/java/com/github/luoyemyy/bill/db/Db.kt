@@ -2,6 +2,7 @@ package com.github.luoyemyy.bill.db
 
 import android.content.Context
 import androidx.room.*
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.*
 

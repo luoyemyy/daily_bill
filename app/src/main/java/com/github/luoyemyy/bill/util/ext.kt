@@ -10,11 +10,14 @@ import android.widget.EditText
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.forEachIndexed
 import androidx.core.view.plusAssign
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.github.luoyemyy.bill.R
 import com.github.luoyemyy.bill.db.Label
 import com.github.luoyemyy.ext.hideKeyboard
+import com.github.luoyemyy.mvp.recycler.LinearDecoration
 import com.github.luoyemyy.mvp.recycler.RecyclerPresenterSupport
+import com.github.luoyemyy.mvp.recycler.setLinearManager
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import java.lang.reflect.Method
@@ -32,6 +35,12 @@ fun formatMoney(money: Double): String {
 
 fun formatMoney2(money: Double): String {
     return DecimalFormat("0.##").format(money)
+}
+
+fun RecyclerView.setup(decoration: RecyclerView.ItemDecoration = LinearDecoration.middle(context), hasFixed: Boolean = false) {
+    setHasFixedSize(hasFixed)
+    setLinearManager()
+    addItemDecoration(decoration)
 }
 
 fun SwipeRefreshLayout.setup(presenter: RecyclerPresenterSupport<*>) {

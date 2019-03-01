@@ -14,9 +14,10 @@ import com.github.luoyemyy.bill.databinding.FragmentFavorAddBinding
 import com.github.luoyemyy.bill.db.*
 import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
-import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.mvp.getPresenter
+import com.github.luoyemyy.mvp.recycler.LoadType
+import com.github.luoyemyy.mvp.runOnWorker
 
 class FavorEditFragment : BaseFragment() {
     private lateinit var mBinding: FragmentFavorAddBinding
@@ -58,8 +59,7 @@ class FavorEditFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        mPresenter.load(arguments)
-        mPresenter.getLabels()
+        mPresenter.loadInit(arguments)
     }
 
     class Presenter(var app: Application) : MvpSimplePresenter<Favor>(app) {
@@ -68,28 +68,23 @@ class FavorEditFragment : BaseFragment() {
         private val mLabelDao = getLabelDao(app)
 
         private var mId = 0L
-        private var mLabels: List<Label>? = null
+        private var mFavor: Favor? = null
+        private var mFavorLabels: List<Label>? = null
 
         val labelLiveData = MutableLiveData<List<Label>>()
 
-        override fun load(bundle: Bundle?) {
+        override fun loadData(loadType: LoadType, bundle: Bundle?) {
             val id = bundle?.getLong("id")?.apply { mId = this } ?: return
-            runOnWorker {
-                data.postValue(getFavorDao(app).get(id))
-            }
-        }
-
-        fun getLabels() {
-            runOnWorker {
-                val labelIds = mFavorDao.getLabels(mId).apply { mLabels = this }.map { it.id }
-                val labels = mLabelDao.getAll(UserInfo.getUserId(app))
-                labels.forEach {
-                    if (labelIds.contains(it.id)) {
-                        it.selected = true
-                    }
+            mFavor = mFavorDao.get(id) ?: return
+            data.postValue(mFavor)
+            val labelIds = mFavorDao.getLabels(mId).apply { mFavorLabels = this }.map { it.id }
+            val labels = mLabelDao.getAll(UserInfo.getUserId(app))
+            labels.forEach {
+                if (labelIds.contains(it.id)) {
+                    it.selected = true
                 }
-                labelLiveData.postValue(labels)
             }
+            labelLiveData.postValue(labels)
         }
 
         private fun getCheckedLabels(): List<Label>? = labelLiveData.value?.filter { it.selected }
@@ -100,11 +95,11 @@ class FavorEditFragment : BaseFragment() {
                 return
             }
             runOnWorker {
-                val favor = mFavorDao.get(mId) ?: return@runOnWorker
+                val favor = mFavor ?: return@runOnWorker
                 favor.money = money.toDouble()
                 favor.description = desc
 
-                val oldLabelIds = mLabels?.mapTo(mutableListOf()) { it.id } ?: mutableListOf<Long>()
+                val oldLabelIds = mFavorLabels?.mapTo(mutableListOf()) { it.id } ?: mutableListOf<Long>()
                 var deleteLabelIds: List<Long>? = null
                 var addLabelIds: List<Long>? = null
                 getCheckedLabels()?.apply labels@{

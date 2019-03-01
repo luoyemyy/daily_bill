@@ -12,7 +12,7 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         touchX = ev?.rawX?.toInt() ?: 0
         touchY = ev?.rawY?.toInt() ?: 0
-        autoCloseKeyboardAndClearFocus(this, ev)
+        autoCloseKeyboardAndClearFocus(ev)
         return super.dispatchTouchEvent(ev)
     }
 }

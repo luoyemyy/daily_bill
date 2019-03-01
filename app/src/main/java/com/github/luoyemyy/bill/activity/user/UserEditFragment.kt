@@ -12,8 +12,8 @@ import com.github.luoyemyy.bill.databinding.FragmentUserEditBinding
 import com.github.luoyemyy.bill.db.getUserDao
 import com.github.luoyemyy.bill.util.*
 import com.github.luoyemyy.bus.Bus
-import com.github.luoyemyy.config.runOnWorker
 import com.github.luoyemyy.mvp.getPresenter
+import com.github.luoyemyy.mvp.runOnWorker
 
 class UserEditFragment : Fragment() {
 

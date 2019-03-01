@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.luoyemyy.bill.R
 import kotlin.math.max
 
-class ChartView(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : FrameLayout(context, attributeSet, defStyleAttr, defStyleRes) {
+class ChartCurveView(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : FrameLayout(context, attributeSet, defStyleAttr, defStyleRes) {
 
     constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) : this(context, attributeSet, defStyleAttr, 0)
     constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, 0, 0)
